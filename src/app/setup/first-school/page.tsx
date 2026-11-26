@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CarFront, KeyRound, School, ShieldCheck, UserRound } from "lucide-react";
 
 export default function FirstSchoolSetupPage() {
@@ -74,7 +75,7 @@ export default function FirstSchoolSetupPage() {
         {success&&<div className="login-success" role="status">{success}</div>}
         <button className="login-submit" type="submit" disabled={busy}>{busy?"Création du compte…":"Créer l'école et le compte propriétaire"}</button>
       </form>
-      <p className="login-support"><a href="/login">Retour à la connexion</a></p>
+      <p className="login-support"><Link href="/login">Retour à la connexion</Link></p>
     </section>
     <footer className="login-footer">© 2026 ConduiPRO · Québec</footer>
   </main>;
