@@ -165,3 +165,20 @@
 .instructor-update-form button:last-child{background:#426bd1;color:#fff;border-color:#426bd1}
 .instructor-update-form button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:760px){.instructor-content{padding:24px 14px}.instructor-metrics{grid-template-columns:1fr}.instructor-update-form{grid-template-columns:1fr}.instructor-update-form>div{justify-content:flex-start}.instructor-progress-top{align-items:flex-start;flex-direction:column}}
+
+/* Instructor assignment management */
+.instructor-assignments-shell{min-height:100vh;background:#f6f8fb;color:#1b2740}
+.instructor-assignments-content{max-width:1080px;margin:0 auto;padding:34px 28px 20px}
+.assignment-create-form{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:13px;margin-top:16px}
+.assignment-create-form label{display:grid;gap:7px;font-size:10px;font-weight:700;color:#59677e}
+.assignment-create-form select{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid #e2e8f1;border-radius:9px;font:12px 'DM Sans',sans-serif;color:#1c2740;background:#fff}
+.assignment-create-form button{border:0;cursor:pointer;white-space:nowrap}
+.assignment-list{display:grid}
+.assignment-list article{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid #eef1f5}
+.assignment-person{display:flex;gap:10px;align-items:center;min-width:0}
+.assignment-person>span:nth-child(2){display:grid;gap:4px;min-width:0}
+.assignment-person strong{font-size:11px;color:#263550}
+.assignment-person small{font-size:9px;color:#8995a8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.assignment-instructor-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f0f4ff;color:#426bd1;flex-shrink:0}
+.assignment-remove{display:flex;gap:5px;align-items:center;border:1px solid #f0dfdd;background:#fff7f6;color:#a85a52;border-radius:8px;padding:7px 9px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
+@media(max-width:760px){.instructor-assignments-content{padding:24px 14px}.assignment-create-form{grid-template-columns:1fr}.assignment-list article{grid-template-columns:1fr;gap:9px}.assignment-remove{justify-self:start}}
