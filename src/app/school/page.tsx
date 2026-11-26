@@ -5,7 +5,6 @@ import {
   CalendarDays,
   CalendarClock,
   CarFront,
-  CheckCircle2,
   Clock3,
   FileCheck2,
   GraduationCap,
@@ -146,7 +145,7 @@ export default async function SchoolPortal() {
         </div>
         <div className="nav-label">ESPACE ÉCOLE</div>
         <nav>
-          <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d'ensemble</a>
+          <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d&apos;ensemble</a>
           <a href="#requests"><Clock3 size={18} /> Demandes</a>
           <a href="#schedule"><CalendarDays size={18} /> Calendrier</a>
           <a href="/school/students"><Users size={18} /> Élèves</a>
@@ -172,7 +171,7 @@ export default async function SchoolPortal() {
 
       <section className="content" id="overview">
         <header className="topbar">
-          <div className="crumb">Établissement <span>/</span> <b>Vue d'ensemble</b></div>
+          <div className="crumb">Établissement <span>/</span> <b>Vue d&apos;ensemble</b></div>
           <div className="top-actions">
             <span className="today-pill"><CalendarDays size={15} />{today}</span>
             <span className="icon-button" aria-label="Notifications"><Bell size={16} /></span>
@@ -184,7 +183,7 @@ export default async function SchoolPortal() {
           <div>
             <p className="eyebrow">{schoolName.toLocaleUpperCase("fr-CA")}</p>
             <h1>Bonjour{firstName ? ", " + firstName : ""} <span>👋</span></h1>
-            <p className="subtitle">Voici l'activité réelle de votre établissement.</p>
+            <p className="subtitle">Voici l&apos;activité réelle de votre établissement.</p>
           </div>
           <a className="primary-button" href="/school/students">Gérer les élèves <ArrowRight size={15} /></a>
         </div>
@@ -260,7 +259,7 @@ export default async function SchoolPortal() {
             <div><span className="progress-dot blue-dot" /><strong>Élèves</strong><small>Comptes et contrats</small><b>{studentCount.count ?? 0} actifs</b></div>
             <div><span className="progress-dot violet-dot" /><strong>Théorie</strong><small>Sessions programmées</small><b>{theoryCount.count ?? 0}</b></div>
             <div><span className="progress-dot orange-dot" /><strong>Pratique</strong><small>Leçons planifiées</small><b>{practicalCount.count ?? 0}</b></div>
-            <div id="documents"><span className="progress-dot green-dot" /><strong>Permis</strong><small>À examiner par l'école</small><b>{pendingPermits.count ?? 0} en attente</b></div>
+            <div id="documents"><span className="progress-dot green-dot" /><strong>Permis</strong><small>À examiner par l&apos;école</small><b>{pendingPermits.count ?? 0} en attente</b></div>
           </div>
         </section>
         <footer><span>© 2026 ConduiPRO</span><span>Portail établissement · Québec</span></footer>
