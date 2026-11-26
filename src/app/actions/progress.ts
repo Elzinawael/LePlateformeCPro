@@ -14,11 +14,9 @@ export async function updateStudentModuleProgress(formData:FormData):Promise<voi
   if(profileError||profile?.account_type!=="school") redirect("/login?error=school-access");
 
   const {data:membership,error:membershipError}=await supabase.from("school_members")
-    .select("school_id,role").eq("user_id",user.id).eq("status","active").limit(1).maybeSingle();
+    .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
   if(membershipError||!membership) redirect("/login?error=school-access");
-  if(!["owner","admin","employee"].includes(membership.role)) {
-    redirect("/school/instructor?notice=forbidden");
-  }
+  if(membership.role!=="owner") redirect("/school?notice=forbidden");
 
   const progressId=String(formData.get("progress_id")??"").trim();
   const status=String(formData.get("status")??"");
@@ -66,11 +64,9 @@ export async function advanceStudentPhase(formData:FormData):Promise<void> {
   if(profileError||profile?.account_type!=="school") redirect("/login?error=school-access");
 
   const {data:membership,error:membershipError}=await supabase.from("school_members")
-    .select("school_id,role").eq("user_id",user.id).eq("status","active").limit(1).maybeSingle();
+    .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
   if(membershipError||!membership) redirect("/login?error=school-access");
-  if(!["owner","admin","employee"].includes(membership.role)) {
-    redirect("/school/instructor?notice=forbidden");
-  }
+  if(membership.role!=="owner") redirect("/school?notice=forbidden");
 
   const studentId=String(formData.get("student_id")??"").trim();
   if(!studentId) redirect("/school/students?notice=phase-error");
