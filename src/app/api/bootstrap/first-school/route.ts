@@ -57,7 +57,7 @@ export async function POST(request:NextRequest) {
     return json("Vérifie les informations. Cette configuration de test utilise une adresse Gmail et un mot de passe de 12 caractères minimum.",400);
   }
 
-  let admin;
+  let admin: ReturnType<typeof createSupabaseAdminClient>;
   try { admin=createSupabaseAdminClient(); }
   catch { return json("La clé secrète Supabase n'est pas configurée côté serveur.",503); }
 
@@ -286,7 +286,7 @@ export async function POST(request:NextRequest) {
 
     return json("Le jeu de données de démonstration a été créé.",201,{
       schoolName,
-      accounts:created.map(({userId,...account})=>account),
+      accounts:created.map(({role,label,email,password})=>({role,label,email,password})),
       demoData:{
         studentContract:"DEMO-2026-001",
         studentPhase:2,
