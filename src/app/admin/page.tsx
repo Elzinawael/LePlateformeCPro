@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { signOut } from "@/app/actions/auth";
 import SchoolProvisioningForm from "./SchoolProvisioningForm";
+import SchoolStatusButton from "./SchoolStatusButton";
 
 export const dynamic="force-dynamic";
 
@@ -46,8 +47,8 @@ export default async function PlatformAdminPage() {
       <section className="students-list-panel">
         <div className="panel-head"><div><h2>Écoles enregistrées</h2><p>Chaque école possède un code distinct pour connecter ses élèves.</p></div><School size={19}/></div>
         {schoolsError?<p className="student-notice" role="alert">Impossible de charger les écoles.</p>:rows.length===0?<p className="empty-state">Aucune école créée.</p>:<div className="students-table-wrap"><table className="students-table">
-          <thead><tr><th>École</th><th>Code école</th><th>Propriétaire</th><th>Courriel</th><th>État</th><th>Création</th></tr></thead>
-          <tbody>{rows.map(s=><tr key={s.id}><td><strong>{s.name}</strong></td><td><code>{s.school_code}</code></td><td>{ownerBySchool.get(s.id)??"—"}</td><td>{s.email??"—"}</td><td><span className={s.status==="active"?"account-active":"account-pending"}>{s.status==="active"?"Active":s.status}</span></td><td>{new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"short",year:"numeric",timeZone:"America/Toronto"}).format(new Date(s.created_at))}</td></tr>)}</tbody>
+          <thead><tr><th>École</th><th>Code école</th><th>Propriétaire</th><th>Courriel</th><th>État</th><th>Création</th><th>Actions</th></tr></thead>
+          <tbody>{rows.map(s=><tr key={s.id}><td><strong>{s.name}</strong></td><td><code>{s.school_code}</code></td><td>{ownerBySchool.get(s.id)??"—"}</td><td>{s.email??"—"}</td><td><span className={s.status==="active"?"account-active":"account-pending"}>{s.status==="active"?"Active":s.status}</span></td><td>{new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"short",year:"numeric",timeZone:"America/Toronto"}).format(new Date(s.created_at))}</td><td><SchoolStatusButton schoolId={s.id} status={s.status}/></td></tr>)}</tbody>
         </table></div>}
       </section>
       <footer className="portal-footer"><span>© 2026 ConduiPRO</span><span>Administration sécurisée de la plateforme</span></footer>
