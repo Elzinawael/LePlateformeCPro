@@ -112,6 +112,7 @@ export default function LoginPage() {
           </button>
         </form>
         <p className="login-support">
+          <Link href="/forgot-password">Mot de passe oublié ?</Link><br />
           Accès réservé aux comptes créés par votre établissement.
         </p>
       </div>
