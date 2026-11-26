@@ -6,7 +6,7 @@ import { createTheorySession } from "@/app/actions/courses";
 type ModuleOption={id:string;module_number:number;name:string;phase_number:number};
 
 export function TheorySessionForm({modules}:{modules:ModuleOption[]}) {
-  const [timezoneOffset,setTimezoneOffset]=useState(0);
+  const [timezoneOffset,setTimezoneOffset]=useState<number|null>(null);
   useEffect(()=>setTimezoneOffset(new Date().getTimezoneOffset()),[]);
   return <form action={createTheorySession} className="theory-create-form">
     <input type="hidden" name="timezone_offset" value={timezoneOffset}/>
@@ -36,6 +36,6 @@ export function TheorySessionForm({modules}:{modules:ModuleOption[]}) {
       </label>
     </div>
     <small>La date et l’heure sont interprétées dans le fuseau horaire de votre navigateur. Durée autorisée : 30 minutes à 6 heures.</small>
-    <button className="primary-button" type="submit">Créer la séance</button>
+    <button className="primary-button" type="submit" disabled={timezoneOffset===null}>{timezoneOffset===null?"Détection du fuseau horaire…":"Créer la séance"}</button>
   </form>;
 }
