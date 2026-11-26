@@ -260,9 +260,9 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
   });
 
   if (licenseError) {
+    await supabase.storage.from("student-documents").remove([path]);
     await supabase.from("student_documents").delete()
       .eq("student_id", student.id).eq("storage_path", path);
-    await supabase.storage.from("student-documents").remove([path]);
     redirect("/student?notice=permit-record-error");
   }
 
