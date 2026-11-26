@@ -76,7 +76,7 @@ export async function middleware(request: NextRequest) {
 
     const { data: membership, error: membershipError } = await supabase
       .from("school_members")
-      .select("school_id")
+      .select("school_id,role")
       .eq("user_id", user.id)
       .eq("status", "active")
       .limit(1)
@@ -84,6 +84,18 @@ export async function middleware(request: NextRequest) {
 
     if (membershipError || !membership) {
       return redirectWithCookies(request, "/login?error=school-access", response);
+    }
+
+    const instructorArea =
+      request.nextUrl.pathname === "/school/instructor" ||
+      request.nextUrl.pathname.startsWith("/school/instructor/");
+
+    if (membership.role === "instructor" && !instructorArea) {
+      return redirectWithCookies(request, "/school/instructor", response);
+    }
+
+    if (membership.role !== "instructor" && instructorArea) {
+      return redirectWithCookies(request, "/school", response);
     }
   }
 
