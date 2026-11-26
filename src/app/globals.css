@@ -320,3 +320,39 @@
  .practical-schedule-form label:nth-child(3){grid-column:auto}
  .practical-row-heading{align-items:flex-start;flex-wrap:wrap}
 }
+
+.finance-panel{display:grid;gap:16px}
+.student-edit-form,.finance-contract-form,.contract-upload-form,.finance-payment-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.student-edit-form label,.finance-contract-form label,.contract-upload-form label,.finance-payment-form label{display:grid;gap:6px;font-size:12px;font-weight:650;color:#42536f}
+.student-edit-form input,.finance-contract-form input,.contract-upload-form input,.finance-payment-form input,.finance-payment-form select{width:100%;min-height:40px;box-sizing:border-box;padding:10px 12px;border:1px solid #dfe6f0;border-radius:9px;background:#fff;color:#172640;font:inherit;font-size:13px}
+.student-edit-form button,.finance-contract-form button,.contract-upload-form button,.finance-payment-form button{justify-self:start;align-self:end;min-height:40px;padding:10px 15px;border:0;border-radius:9px;background:#285fe7;color:#fff;font-size:12px;font-weight:750}
+.student-edit-readonly{display:grid;gap:4px;padding:10px 12px;border-radius:9px;background:#f5f7fb}
+.student-edit-readonly small{font-size:11px;color:#71819a}
+.student-edit-readonly strong{font-size:14px}
+.finance-contract-form{padding:14px;border:1px solid #e5ebf3;border-radius:12px;background:#fbfcfe}
+.contract-upload-form{padding:14px;border:1px dashed #cad6e8;border-radius:12px}
+.contract-download a{font-size:13px;font-weight:700;color:#245be2;text-decoration:none}
+.finance-balance-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#eef4ff;border:1px solid #dbe7ff;border-radius:12px}
+.finance-balance-row span{font-size:13px;color:#405574}
+.finance-balance-row strong{font-size:22px;color:#1f4fbe}
+.finance-invoice-list{display:grid;gap:12px}
+.finance-invoice-list article{display:grid;gap:12px;padding:14px;border:1px solid #e6ebf2;border-radius:12px}
+.finance-invoice-heading,.finance-invoice-values{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.finance-invoice-heading strong{font-size:14px}
+.finance-invoice-values{font-size:12px;color:#6a7890}
+.finance-invoice-values strong{color:#1b2b43}
+.finance-payment-form{padding-top:10px;border-top:1px solid #edf0f5}
+.finance-payment-history{display:grid;gap:8px}
+.finance-payment-history h3{margin:0;font-size:14px}
+.finance-payment-history>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #edf0f5;font-size:12px;color:#62728a}
+.finance-payment-history strong{color:#1c2d47}
+.school-status-actions{display:grid;gap:4px}
+.school-status-button{padding:7px 10px;border:1px solid #dbe4f2;border-radius:8px;background:#fff;color:#355b9a;font-size:11px;font-weight:700;white-space:nowrap}
+.school-status-button:disabled{opacity:.6}
+.school-status-actions small{max-width:150px;color:#b42318;font-size:10px}
+.practical-complete-form{display:flex;justify-content:flex-end}
+.practical-complete-button{padding:9px 13px;border:1px solid #b9e1cb;border-radius:9px;background:#f1faf4;color:#18633c;font-size:12px;font-weight:750}
+@media(max-width:720px){
+ .student-edit-form,.finance-contract-form,.contract-upload-form,.finance-payment-form{grid-template-columns:1fr}
+ .finance-balance-row{align-items:flex-start;flex-direction:column}
+}
