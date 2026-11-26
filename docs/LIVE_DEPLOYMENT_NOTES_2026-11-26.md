@@ -2,7 +2,7 @@
 
 ## Database
 - Supabase project: `nahjdhvjozrvdgmjdbws` (Canada Central).
-- Migration history observed in Supabase: versions `202611260001` through `202611260018`.
+- Migration history observed in Supabase: versions `202611260001` through `202611260017`, then timestamped fixes `20261126180156` and `20261126180250`.
 - Global class 5 curriculum in live database: 4 phases, 12 theory modules (120 minutes each), 15 practical outings (55 minutes each).
 - Private Storage bucket `student-documents`: not public; 10 MiB limit; PDF, JPEG and PNG.
 - No student records or application users were present at the time of this snapshot.
