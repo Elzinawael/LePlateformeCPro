@@ -87,8 +87,11 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
   const schoolPhases=(schoolPhasesResult.data??[]) as Phase[];
   const globalPhases=(globalPhasesResult.data??[]) as Phase[];
   // A school-specific curriculum overrides the global phase template.
+  const exactCurrentPhase=[...schoolPhases,...globalPhases].find(p=>p.id===student.current_phase_id)??null;
   const phases=[1,2,3,4].flatMap(n=>{
-    const phase=schoolPhases.find(p=>p.phase_number===n)??globalPhases.find(p=>p.phase_number===n);
+    const phase=(exactCurrentPhase?.phase_number===n?exactCurrentPhase:null)
+      ??schoolPhases.find(p=>p.phase_number===n)
+      ??globalPhases.find(p=>p.phase_number===n);
     return phase?[phase]:[];
   });
   const phaseIds=phases.map(p=>p.id);
@@ -108,12 +111,13 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
   const invoices=(invoiceResult.data??[]) as Invoice[];
   const payments=(paymentResult.data??[]) as Payment[];
 
-  const currentPhase=phases.find(p=>p.id===student.current_phase_id)
-    ??[...schoolPhases,...globalPhases].find(p=>p.id===student.current_phase_id)??null;
+  const currentPhase=phases.find(p=>p.id===student.current_phase_id)??null;
   const currentModules=currentPhase?modules.filter(m=>m.phase_id===currentPhase.id&&m.is_active):[];
   const currentLessons=currentPhase?lessons.filter(l=>l.phase_id===currentPhase.id&&l.is_active):[];
-  const completedModules=new Set(moduleProgress.filter(p=>p.status==="completed").map(p=>p.module_id));
-  const completedLessons=new Set(practicalProgress.filter(p=>p.status==="completed").map(p=>p.lesson_id));
+  const validModuleIds=new Set(modules.map(m=>m.id));
+  const validLessonIds=new Set(lessons.map(l=>l.id));
+  const completedModules=new Set(moduleProgress.filter(p=>p.status==="completed"&&validModuleIds.has(p.module_id)).map(p=>p.module_id));
+  const completedLessons=new Set(practicalProgress.filter(p=>p.status==="completed"&&validLessonIds.has(p.lesson_id)).map(p=>p.lesson_id));
   const totalItems=modules.filter(m=>m.is_active).length+lessons.filter(l=>l.is_active).length;
   const doneItems=completedModules.size+completedLessons.size;
   const completion=totalItems?Math.round(doneItems/totalItems*100):0;
