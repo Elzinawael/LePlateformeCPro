@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { CarFront, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
