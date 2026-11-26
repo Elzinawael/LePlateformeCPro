@@ -15,7 +15,20 @@ Never prefix `SUPABASE_SECRET_KEY` with `NEXT_PUBLIC_`. Never commit it to GitHu
 
 For local development, copy `.env.example` to `.env.local` and populate the values using the Supabase Dashboard.
 
-## Initial school and owner bootstrap
+## One-time demo bootstrap
+
+The first test dataset is provisioned from `/setup/first-school` after deploying the latest application:
+
+1. Add `CONDUIPRO_BOOTSTRAP_TOKEN` in Hostinger with a random value of at least 32 characters. This is separate from the Supabase key.
+2. Deploy the application with `SUPABASE_SECRET_KEY` available server-side.
+3. Open `https://<your-hostinger-domain>/setup/first-school`.
+4. Enter the bootstrap token, the owner's name, the owner's Gmail address and a new owner password.
+5. The one-time server endpoint creates one demo school, one owner, one admin, one employee, one instructor and one student. It also creates a theory session, a theory request, a practical request, an instructor assignment and a scheduled practical outing.
+6. Copy and save all temporary credentials shown after success. They are displayed only once. All role test accounts use Gmail plus-addresses derived from the owner's Gmail address.
+
+The demo student is intentionally seeded in Phase 2 with a synthetic Phase 1 history (modules 1–5 completed) so the practical request and instructor workflow can be tested without weakening the normal progression rules. The dataset is marked as demo data and should be deleted before real customer onboarding.
+
+The endpoint uses the server-only Supabase secret, a constant-time bootstrap token check and a database singleton guard. It refuses to run if any school or school membership already exists. Do not reuse the bootstrap token; remove `CONDUIPRO_BOOTSTRAP_TOKEN` from Hostinger after the first successful run.
 
 The database starts without application users or schools. After deploying the application and configuring the environment, the first school/owner can be provisioned once from a trusted terminal:
 
