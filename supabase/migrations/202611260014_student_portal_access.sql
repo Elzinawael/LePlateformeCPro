@@ -29,6 +29,20 @@ on public.payments
 for select to authenticated
 using (student_id = (select public.current_student_id()));
 
+-- Students may see only the name of the school linked to their own record.
+drop policy if exists schools_student_self_select on public.schools;
+create policy schools_student_self_select
+on public.schools
+for select to authenticated
+using (
+  exists (
+    select 1
+    from public.students s
+    where s.school_id = schools.id
+      and s.user_id = (select auth.uid())
+  )
+);
+
 -- Expose the school-specific curriculum to the linked student only.
 drop policy if exists phases_student_school_select on public.curriculum_phases;
 create policy phases_student_school_select
