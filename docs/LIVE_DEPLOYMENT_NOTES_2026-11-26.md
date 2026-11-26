@@ -1,34 +1,56 @@
-# ConduiPRO — live deployment notes (2026-11-26)
+# ConduiPRO — état du déploiement et de la base (2026-11-26)
 
-## Database
-- Supabase project: `nahjdhvjozrvdgmjdbws` (Canada Central).
-- Migration history observed in Supabase: versions `202611260001` through `202611260017`, then timestamped fixes `20261126180156` and `20261126180250`.
-- Global class 5 curriculum in live database: 4 phases, 12 theory modules (120 minutes each), 15 practical outings (55 minutes each).
-- Private Storage bucket `student-documents`: not public; 10 MiB limit; PDF, JPEG and PNG.
-- No student records or application users were present at the time of this snapshot.
+## Application
+- Dépôt : `Elzinawael/LePlateformeCPro`.
+- Hébergement : Hostinger, Next.js standalone, Node.js 22.
+- Projet Supabase : `nahjdhvjozrvdgmjdbws`, Canada Central.
+- Le commit `0ab04ec44cdea8f6a767b75a38435306ec987e33` a corrigé PostCSS à 8.5.33 ; npm audit, ESLint et build de production étaient verts.
+- Des changements fonctionnels ultérieurs ont été ajoutés ; toujours vérifier la dernière exécution GitHub Actions et l'état Hostinger avant de considérer la dernière version publiée.
 
-## Important deployment correction
-An attempted SQL dry-run was executed by the Supabase SQL tool as live statements rather than being isolated by the `BEGIN/ROLLBACK` wrapper. Subsequent inspection confirmed the DDL and data seed are live. Treat the Supabase migration registry and direct database inspection as the source of truth; never use `execute_sql` with transaction wrappers as a dry-run mechanism.
+## Modèle de comptes actif
+- Administrateur ConduiPRO dans `public.platform_admins`.
+- Un propriétaire actif par école (`school_members.role='owner'`).
+- Compte élève distinct créé automatiquement depuis le portail école.
+- Aucun employé ou instructeur connecté. Le moniteur pratique est un champ texte sur la sortie.
+- Les comptes secondaires du jeu de test sont désactivés et ne possèdent plus d'adhésion active.
 
-## PESR permit rule
-SAAQ class 5 structure places modules 1–5 in Phase 1. Module 5 is the driving school's theory evaluation; the learner permit follows completion of the first four modules and successful evaluation, before Phase 2 road outings. Migration 018 enforces completed Phase 1 modules 1–5.
+## École de démonstration
+- École : `ConduiPRO — École de démonstration`.
+- Code école : `CP-6B224C`.
+- Compte plateforme / propriétaire de démonstration : `elzinawael@gmail.com`.
+- Élève de démonstration : `DEMO-2026-001`, en phase 2.
+- Données initiales : cinq modules de phase 1 terminés, deux demandes en attente et une sortie pratique planifiée avec `Moniteur de démonstration`.
 
-## Security advisor
-The three SECURITY DEFINER helpers `is_school_member`, `has_school_role` and `current_student_id` remain executable by authenticated users because the RLS policies call them. They return only the current user's membership/identity checks. Trigger-only helper functions have direct EXECUTE privileges revoked in migration 018 to prevent unnecessary RPC access.
+## Sécurité et RLS
+- Helpers RLS déplacés dans le schéma privé non exposé.
+- Toutes les policies scolaires qui autorisent des opérations opérationnelles sont owner-only.
+- Rôles Admin/Employee/Instructor supprimés du modèle de membership actif.
+- Finance RPC en SECURITY INVOKER, avec RLS owner-only.
+- Bucket privé `student-documents`.
+- Toutes les clés étrangères publiques signalées sans index ont reçu un index.
+- Les tests métier de sortie pratique, demande et finance utilisent des transactions rollback.
 
-## Application delivery
-GitHub Actions CI runs ESLint and a production build. The first complete green run was observed on commit `7615ab5277dd43f8b460f0e13c51976fc66813ab`. Each later commit triggers a new check; the latest run should be confirmed before release.
+## Modèle financier
+- Contrat actif unique par élève et école.
+- Enregistrement du contrat crée ou met à jour la facture associée.
+- Paiement atomique avec verrou de facture et contrôle du solde restant.
+- Test transactionnel : contrat CAD 1 250, acompte CAD 250, solde CAD 1 000 ; transaction annulée.
 
+## Routes et parcours principaux
+- `/admin` : création, listing, suspension et réactivation des écoles.
+- `/school` : tableau de bord temps réel de l'école.
+- `/school/students` : création automatique des comptes élèves et dossiers.
+- `/school/students/[id]` : profil, progression, contrat, facture et paiements.
+- `/school/courses` : planification des séances théoriques.
+- `/school/requests` : traitement des demandes élèves.
+- `/school/practical` : planification/validation des sorties avec moniteur texte.
+- `/school/documents` : revue des permis d'apprenti.
+- `/student` : progression, demandes, permis, contrat et solde.
+- L'ancien `/setup/first-school` et l'API bootstrap sont désactivés.
 
-## Permit review
-- Timestamped migration `20261126182118_atomic_student_permit_review` is applied.
-- School owner/admin/employee can review a pending permit with a reason required for rejection.
-- The RPC updates `student_licenses` and the matching `student_documents` row atomically, with reviewer identity and timestamp.
-- A five-minute signed Storage URL is shown in the school portal; the bucket remains private.
-
-
-## One-time demo bootstrap
-- Migration `20261126190134_create_one_time_school_bootstrap_guard` creates a private singleton record used to prevent concurrent or repeated initial provisioning.
-- The server endpoint `/api/bootstrap/first-school` requires `CONDUIPRO_BOOTSTRAP_TOKEN` and the server-only Supabase secret key.
-- The first run provisions a demo school and one account for each app role, plus theory/practical request fixtures and an instructor practical slot.
-- Temporary passwords are generated server-side and returned once to the protected setup page. Remove the bootstrap token from Hostinger after the successful run.
+## À vérifier avant les premiers vrais clients
+- Déploiement Hostinger du commit de production final.
+- Test visuel réel des formulaires et du changement de mot de passe initial.
+- SMTP et récupération de compte propriétaire.
+- Test cross-tenant avec une deuxième école.
+- Protection contre mots de passe compromis dans Supabase Auth selon disponibilité du plan.
