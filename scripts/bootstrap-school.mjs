@@ -62,7 +62,7 @@ try {
       city: process.env.BOOTSTRAP_SCHOOL_CITY?.trim() || null,
       province: process.env.BOOTSTRAP_SCHOOL_PROVINCE?.trim() || "Québec",
       postal_code: process.env.BOOTSTRAP_SCHOOL_POSTAL_CODE?.trim() || null,
-      status: "active",
+      status: "invited",
     })
     .select("id")
     .single();
