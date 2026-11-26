@@ -53,7 +53,7 @@ export default async function StudentsPage() {
     </header>
     <section className="students-admin-content">
       <div className="students-page-heading">
-        <div><p className="hero-kicker">GESTION DE L’ÉTABLISSEMENT</p><h1>Élèves</h1><p>Créez un dossier et le compte de connexion de l'élève en une seule opération.</p></div>
+        <div><p className="hero-kicker">GESTION DE L’ÉTABLISSEMENT</p><h1>Élèves</h1><p>Créez un dossier et le compte de connexion de l&apos;élève en une seule opération.</p></div>
         <div className="students-total"><Users size={18}/><strong>{students.length}</strong><small>élèves</small></div>
       </div>
       {studentsError&&<div className="student-notice" role="alert">Impossible de charger les dossiers élèves.</div>}
