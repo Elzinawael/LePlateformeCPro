@@ -1,12 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { CarFront, Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function SetPasswordPage() {
-  const searchParams=useSearchParams();
   const [password,setPassword]=useState("");
   const [confirmPassword,setConfirmPassword]=useState("");
   const [showPassword,setShowPassword]=useState(false);
@@ -49,7 +47,7 @@ export default function SetPasswordPage() {
         .select("account_type").eq("id",user.id).maybeSingle();
       if(profileError) throw profileError;
       const fallback=profile?.account_type==="school"?"/school":"/student";
-      const next=searchParams.get("next");
+      const next=new URLSearchParams(window.location.search).get("next");
       const destination=next?.startsWith("/")&&!next.startsWith("//")?next:fallback;
       setMessage("Mot de passe enregistré. Ouverture de votre espace…");
       window.location.assign(destination);
