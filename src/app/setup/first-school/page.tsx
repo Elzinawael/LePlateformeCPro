@@ -50,14 +50,14 @@ export default function FirstSchoolSetupPage() {
       </div>
       <div className="login-heading">
         <h1>Créer le premier compte</h1>
-        <p>Cette opération crée une école de démonstration et son compte propriétaire. Elle ne peut être exécutée qu'une seule fois.</p>
+        <p>Cette opération crée une école de démonstration et son compte propriétaire. Elle ne peut être exécutée qu&apos;une seule fois.</p>
       </div>
       <div className="first-school-security"><ShieldCheck size={17}/><span>La clé administrative Supabase reste sur le serveur. Choisis ici ton propre mot de passe ; ne le partage pas dans le chat.</span></div>
       <form onSubmit={submit} className="first-school-form">
-        <label htmlFor="bootstrap-token">Code d'initialisation Hostinger</label>
+        <label htmlFor="bootstrap-token">Code d&apos;initialisation Hostinger</label>
         <div className="login-input"><KeyRound size={17}/><input id="bootstrap-token" type="password" required autoComplete="off" value={token} onChange={e=>setToken(e.target.value)} placeholder="Code configuré dans Hostinger"/></div>
 
-        <label htmlFor="school-name">Nom de l'école de test</label>
+        <label htmlFor="school-name">Nom de l&apos;école de test</label>
         <div className="login-input"><School size={17}/><input id="school-name" required maxLength={160} value={schoolName} onChange={e=>setSchoolName(e.target.value)}/></div>
 
         <div className="first-school-name-grid">
@@ -73,7 +73,7 @@ export default function FirstSchoolSetupPage() {
 
         {error&&<div className="login-error" role="alert">{error}</div>}
         {success&&<div className="login-success" role="status">{success}</div>}
-        <button className="login-submit" type="submit" disabled={busy}>{busy?"Création du compte…":"Créer l'école et le compte propriétaire"}</button>
+        <button className="login-submit" type="submit" disabled={busy}>{busy?"Création du compte…":"Créer l&apos;école et le compte propriétaire"}</button>
       </form>
       <p className="login-support"><Link href="/login">Retour à la connexion</Link></p>
     </section>
