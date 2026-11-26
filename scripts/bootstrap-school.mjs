@@ -62,7 +62,7 @@ try {
       city: process.env.BOOTSTRAP_SCHOOL_CITY?.trim() || null,
       province: process.env.BOOTSTRAP_SCHOOL_PROVINCE?.trim() || "Québec",
       postal_code: process.env.BOOTSTRAP_SCHOOL_POSTAL_CODE?.trim() || null,
-      status: "invited",
+      status: "active",
     })
     .select("id")
     .single();
@@ -89,7 +89,7 @@ try {
     school_id: schoolId,
     user_id: invitedUserId,
     role: "owner",
-    status: "active",
+    status: "invited",
   });
 
   if (memberError) throw memberError;
