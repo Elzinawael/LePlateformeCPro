@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type StudentContext = {
   id: string;
@@ -84,9 +85,11 @@ export async function createCourseRequest(formData: FormData): Promise<void> {
 
     if (courseError || !course) redirect("/student?notice=session-unavailable");
 
-    const { count: enrolledCount, error: enrollmentError } = await supabase
+    const admin=createSupabaseAdminClient();
+    const { count: enrolledCount, error: enrollmentError } = await admin
       .from("theory_course_enrollments")
       .select("id", { count: "exact", head: true })
+      .eq("school_id",student.school_id)
       .eq("course_id", course.id)
       .eq("status", "enrolled");
     if (enrollmentError || (enrolledCount ?? 0) >= course.capacity) {
