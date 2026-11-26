@@ -67,16 +67,28 @@ on storage.objects
 for update to authenticated
 using (
   bucket_id = 'student-documents'
-  and public.has_school_role(
-    (storage.foldername(name))[1]::uuid,
-    array['owner', 'admin', 'employee']::text[]
+  and exists (
+    select 1
+    from public.students s
+    where s.school_id::text = (storage.foldername(name))[1]
+      and s.id::text = (storage.foldername(name))[2]
+      and public.has_school_role(
+        s.school_id,
+        array['owner', 'admin', 'employee']::text[]
+      )
   )
 )
 with check (
   bucket_id = 'student-documents'
-  and public.has_school_role(
-    (storage.foldername(name))[1]::uuid,
-    array['owner', 'admin', 'employee']::text[]
+  and exists (
+    select 1
+    from public.students s
+    where s.school_id::text = (storage.foldername(name))[1]
+      and s.id::text = (storage.foldername(name))[2]
+      and public.has_school_role(
+        s.school_id,
+        array['owner', 'admin', 'employee']::text[]
+      )
   )
 );
 
@@ -86,8 +98,14 @@ on storage.objects
 for delete to authenticated
 using (
   bucket_id = 'student-documents'
-  and public.has_school_role(
-    (storage.foldername(name))[1]::uuid,
-    array['owner', 'admin', 'employee']::text[]
+  and exists (
+    select 1
+    from public.students s
+    where s.school_id::text = (storage.foldername(name))[1]
+      and s.id::text = (storage.foldername(name))[2]
+      and public.has_school_role(
+        s.school_id,
+        array['owner', 'admin', 'employee']::text[]
+      )
   )
 );
