@@ -15,6 +15,17 @@ Never prefix `SUPABASE_SECRET_KEY` with `NEXT_PUBLIC_`. Never commit it to GitHu
 
 For local development, copy `.env.example` to `.env.local` and populate the values using the Supabase Dashboard.
 
+## Initial school and owner bootstrap
+
+The database starts without application users or schools. After deploying the application and configuring the environment, the first school/owner can be provisioned once from a trusted terminal:
+
+1. Copy `.env.example` to a private `.env.local` file and set the Supabase URL, server secret key, `APP_BASE_URL`, and the `BOOTSTRAP_*` school/owner fields.
+2. Run `npm install` and `npm run bootstrap:school`.
+3. The script creates the school, owner profile and owner membership, then sends an invitation email.
+4. The owner opens the email, confirms the invitation and sets a password in ConduiPRO.
+
+Run this script only once for each new school. Keep `SUPABASE_SECRET_KEY` in the terminal environment only; do not put it in a browser variable or commit it to GitHub. The script cleans up partial records if provisioning fails.
+
 ## Supabase Auth
 
 In Supabase Dashboard → Authentication → URL Configuration:
