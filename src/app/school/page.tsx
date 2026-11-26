@@ -146,7 +146,7 @@ export default async function SchoolPortal() {
         <div className="nav-label">ESPACE ÉCOLE</div>
         <nav>
           <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d&apos;ensemble</a>
-          <a href="#requests"><Clock3 size={18} /> Demandes</a>
+          <a href="/school/requests"><Clock3 size={18} /> Demandes</a>
           <a href="#schedule"><CalendarDays size={18} /> Calendrier</a>
           <a href="/school/students"><Users size={18} /> Élèves</a>
         </nav>
@@ -185,7 +185,7 @@ export default async function SchoolPortal() {
             <h1>Bonjour{firstName ? ", " + firstName : ""} <span>👋</span></h1>
             <p className="subtitle">Voici l&apos;activité réelle de votre établissement.</p>
           </div>
-          <a className="primary-button" href="/school/students">Gérer les élèves <ArrowRight size={15} /></a>
+          <a className="primary-button" href="/school/requests">Consulter les demandes <ArrowRight size={15} /></a>
         </div>
 
         <div className="metric-grid">
