@@ -40,3 +40,42 @@
 .user-row form .dots{border:0;background:transparent;cursor:pointer;padding:4px}
 .schedule-time small{font-size:8px;color:#a0aaba}
 @media(max-width:760px){.student-session{align-items:flex-start;flex-wrap:wrap}.student-session .student-action{margin-left:45px}.balance-summary{align-items:flex-start;flex-direction:column}.student-notice{font-size:11px}}
+
+/* School student register */
+.students-admin-shell{min-height:100vh;background:#f6f8fb;color:#1b2740}
+.students-admin-header{height:72px;padding:0 5vw;background:#fff;border-bottom:1px solid #e9edf3;display:flex;align-items:center;justify-content:space-between}
+.students-brand{display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit}
+.students-brand>span:last-child{display:grid;gap:2px}
+.students-brand strong{font:700 16px Manrope,sans-serif}
+.students-brand small{font-size:8px;letter-spacing:1px;color:#94a0b2}
+.students-head-right{display:flex;gap:22px;align-items:center;font-size:11px;color:#748096}
+.students-head-right a{display:flex;gap:6px;align-items:center;text-decoration:none;color:#426bd1;font-weight:700}
+.students-admin-content{max-width:1160px;margin:0 auto;padding:34px 28px 20px}
+.students-page-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.students-page-heading h1{font:700 30px Manrope,sans-serif;margin:6px 0}
+.students-page-heading p{font-size:12px;color:#8995a8;margin:0}
+.students-total{display:grid;grid-template-columns:auto auto;align-items:center;gap:3px 8px;padding:13px 17px;background:#fff;border:1px solid #e9edf3;border-radius:12px;color:#718098}
+.students-total strong{font:700 20px Manrope;color:#1d2a43}
+.students-total small{grid-column:2;font-size:9px}
+.students-create-panel,.students-list-panel{background:#fff;border:1px solid #e9edf3;border-radius:15px;padding:20px 22px;margin:15px 0;box-shadow:0 8px 24px rgba(33,49,79,.035)}
+.students-create-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.students-create-form label{display:grid;gap:7px;font-size:10px;font-weight:700;color:#59677e}
+.students-create-form input{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid #e2e8f1;border-radius:9px;font:12px 'DM Sans',sans-serif;color:#1c2740;background:#fff}
+.students-create-submit{display:flex;grid-column:1/-1;align-items:center;gap:14px;margin-top:3px}
+.students-create-submit small{font-size:9px;color:#8995a8}
+.students-create-submit .primary-button{display:flex;gap:7px;align-items:center}
+.students-table-wrap{overflow-x:auto}
+.students-table{width:100%;border-collapse:collapse;margin-top:12px;white-space:nowrap}
+.students-table th{text-align:left;padding:11px 10px;background:#f7f9fc;color:#8995a8;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.students-table td{padding:13px 10px;border-bottom:1px solid #eef1f5;font-size:10px;color:#53627a}
+.students-table td:first-child{min-width:170px}
+.students-table td strong,.students-table td small{display:block}
+.students-table td strong{font-size:11px;color:#273550}
+.students-table td small{font-size:9px;color:#929db0;margin-top:3px}
+.account-active,.account-pending{display:inline-flex;padding:5px 8px;border-radius:15px;font-size:9px}
+.account-active{background:#edf8f2;color:#35845c}
+.account-pending{background:#fff7e8;color:#a4772d}
+.students-list-panel .panel-head{margin-bottom:6px}
+.students-admin-content .portal-footer{margin-top:28px}
+@media(max-width:760px){.students-admin-header{padding:0 18px}.students-head-right>span{display:none}.students-admin-content{padding:24px 14px}.students-create-form{grid-template-columns:1fr 1fr}.students-page-heading h1{font-size:25px}}
+@media(max-width:480px){.students-create-form{grid-template-columns:1fr}.students-create-submit{align-items:flex-start;flex-direction:column}.students-total{padding:10px}}
