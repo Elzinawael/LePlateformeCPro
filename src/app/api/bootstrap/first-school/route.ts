@@ -189,14 +189,21 @@ export async function POST(request:NextRequest) {
       }
     }
 
-    // Prepare a legitimate Phase 1 completion history for this clearly labelled demo student.
+    // Prepare a clearly labelled demo history that satisfies the Phase 1 transition rules.
+    const {data:globalPhaseOne,error:globalPhaseOneError}=await admin.from("curriculum_phases")
+      .select("id").is("school_id",null).eq("phase_number",1).single();
+    if(globalPhaseOneError||!globalPhaseOne||!studentId) {
+      throw new Error("La phase 1 du programme SAAQ est introuvable.");
+    }
+
     const {data:phaseOneModules,error:modulesError}=await admin.from("curriculum_modules")
       .select("id,module_number")
-      .eq("phase_id",(await admin.from("curriculum_phases").select("id").is("school_id",null).eq("phase_number",1).single()).data!.id)
+      .eq("phase_id",globalPhaseOne.id)
       .gte("module_number",1).lte("module_number",5);
-    if(modulesError||!phaseOneModules||phaseOneModules.length!==5||!studentId) {
+    if(modulesError||!phaseOneModules||phaseOneModules.length!==5) {
       throw new Error("Les cinq modules de la phase 1 ne sont pas disponibles.");
     }
+
     const modulesOneToFour=phaseOneModules.filter(m=>m.module_number<5).map(m=>m.id);
     const {error:previousModulesError}=await admin.from("student_module_progress")
       .update({
@@ -206,7 +213,8 @@ export async function POST(request:NextRequest) {
       }).eq("student_id",studentId).in("module_id",modulesOneToFour);
     if(previousModulesError) throw previousModulesError;
 
-    const moduleFive=phaseOneModules.find(m=>m.module_number===5)!;
+    const moduleFive=phaseOneModules.find(m=>m.module_number===5);
+    if(!moduleFive) throw new Error("Le module d'évaluation 5 est introuvable.");
     const {error:moduleFiveError}=await admin.from("student_module_progress")
       .update({
         status:"completed",
@@ -215,18 +223,19 @@ export async function POST(request:NextRequest) {
       }).eq("student_id",studentId).eq("module_id",moduleFive.id);
     if(moduleFiveError) throw moduleFiveError;
 
-    const [{data:phaseTwo,error:phaseTwoError},{data:phaseTwoModule,error:phaseTwoModuleError},{data:phaseTwoLesson,error:phaseTwoLessonError}] =
+    const {data:phaseTwo,error:phaseTwoError}=await admin.from("curriculum_phases")
+      .select("id").is("school_id",null).eq("phase_number",2).single();
+    if(phaseTwoError||!phaseTwo) throw new Error("La phase 2 du programme SAAQ est introuvable.");
+
+    const [{data:phaseTwoModule,error:phaseTwoModuleError},{data:phaseTwoLesson,error:phaseTwoLessonError}]=
       await Promise.all([
-        admin.from("curriculum_phases").select("id").is("school_id",null).eq("phase_number",2).single(),
         admin.from("curriculum_modules").select("id,module_number,name")
-          .eq("module_number",6)
-          .in("phase_id",await admin.from("curriculum_phases").select("id").is("school_id",null).eq("phase_number",2).then(x=>(x.data??[]).map(p=>p.id))).single(),
+          .eq("phase_id",phaseTwo.id).eq("module_number",6).single(),
         admin.from("practical_lessons").select("id,lesson_number,name")
-          .eq("lesson_number",1)
-          .in("phase_id",await admin.from("curriculum_phases").select("id").is("school_id",null).eq("phase_number",2).then(x=>(x.data??[]).map(p=>p.id))).single()
+          .eq("phase_id",phaseTwo.id).eq("lesson_number",1).single()
       ]);
 
-    if(phaseTwoError||!phaseTwo||phaseTwoModuleError||!phaseTwoModule||phaseTwoLessonError||!phaseTwoLesson) {
+    if(phaseTwoModuleError||!phaseTwoModule||phaseTwoLessonError||!phaseTwoLesson) {
       throw new Error("Le programme de phase 2 est incomplet.");
     }
 
