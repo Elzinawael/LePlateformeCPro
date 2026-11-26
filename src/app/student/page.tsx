@@ -43,7 +43,7 @@ const notices:Record<string,string> = {
   "session-unavailable":"Cette séance n’est plus disponible.",
   "availability-invalid":"Décrivez vos disponibilités en 500 caractères maximum.",
   "phase-missing":"Votre école doit confirmer votre phase actuelle.",
-  "permit-locked":"Le dépôt sera accessible après la validation du module 5 de la phase 2.",
+  "permit-locked":"Le dépôt est accessible après la réussite des modules 1 à 5 de la phase 1.",
   "file-invalid":"Le fichier est vide ou dépasse la limite de 10 Mo.",
   "file-type":"Le format doit être PDF, JPG ou PNG.",
   "permit-details-invalid":"Le numéro de permis est trop long.",
@@ -128,9 +128,13 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
 
   const activeModuleIds=new Set(currentModules.map(m=>m.id));
   const upcomingCourses=courses.filter(c=>activeModuleIds.has(c.module_id)&&!completedModules.has(c.module_id)).slice(0,6);
-  const phaseTwo=phases.find(p=>p.phase_number===2);
-  const moduleFive=phaseTwo?modules.find(m=>m.phase_id===phaseTwo.id&&m.module_number===5):null;
-  const permitUnlocked=currentPhase?.phase_number===2&&!!moduleFive&&completedModules.has(moduleFive.id);
+  const phaseOne=phases.find(p=>p.phase_number===1);
+  const phaseOneModuleNumbers=new Set(
+    modules.filter(m=>m.phase_id===phaseOne?.id&&m.module_number>=1&&m.module_number<=5)
+      .filter(m=>completedModules.has(m.id))
+      .map(m=>m.module_number)
+  );
+  const permitUnlocked=[1,2,3,4,5].every(number=>phaseOneModuleNumbers.has(number));
   const studentName=[student.first_name,student.last_name].filter(Boolean).join(" ")||"Élève";
 
   let contractUrl:string|null=null;
@@ -219,7 +223,7 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
 
     <section className="student-layout student-section-gap">
       <article className="student-panel">
-        <div className="panel-head"><div><h2>Permis d’apprenti conducteur</h2><p>Vérification par votre école · Phase 2, module 5</p></div><FileCheck2 size={18}/></div>
+        <div className="panel-head"><div><h2>Permis d’apprenti conducteur</h2><p>Vérification par votre école · Après l’évaluation du module 5 en phase 1</p></div><FileCheck2 size={18}/></div>
         {license&&<div className="permit-status">
           <div className="permit-status-main"><span className="feature-icon green"><FileText/></span><div><strong>{license.license_number||"Document de permis"}</strong><small>{label(license.verification_status)} · Transmis le {date(license.created_at)}</small>{license.expiry_date&&<small>Expiration : {date(license.expiry_date)}</small>}</div></div>
           {permitUrl&&<a className="link-button" href={permitUrl} target="_blank" rel="noreferrer">Ouvrir le fichier <ArrowUpRight size={14}/></a>}
@@ -228,7 +232,7 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
         {permitUnlocked&&license?.verification_status!=="pending"&&license?.verification_status!=="approved"
           ?<PermitUploadForm/>
           :!permitUnlocked
-            ?<p className="student-helper">Cette étape s’activera lorsque le module 5 de la phase 2 sera complété et validé.</p>
+            ?<p className="student-helper">Cette étape s’activera après la réussite des quatre premiers modules et de l’évaluation du module 5 en phase 1.</p>
             :license?.verification_status==="pending"
               ?<p className="student-helper">Votre document est en attente de vérification par votre école.</p>
               :<p className="student-helper">Votre permis a été vérifié par votre école.</p>}
