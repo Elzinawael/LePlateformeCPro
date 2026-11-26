@@ -1,5 +1,6 @@
 import { ArrowLeft,BookOpen,CarFront,CheckCircle2,FileCheck2,GraduationCap,UserRound } from "lucide-react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { advanceStudentPhase,updateStudentModuleProgress } from "@/app/actions/progress";
 
@@ -98,7 +99,7 @@ export default async function StudentRecordPage({
  return <main className="student-record-shell">
   <header className="students-admin-header">
    <a className="students-brand" href="/school"><span className="brand-mark"><CarFront size={20}/></span><span><strong>ConduiPRO</strong><small>PORTAIL ÉCOLE</small></span></a>
-   <div className="students-head-right"><span>{school?.name??"Votre école"}</span><a href="/school/students"><ArrowLeft size={15}/> Liste des élèves</a></div>
+   <div className="students-head-right"><span>{school?.name??"Votre école"}</span><Link href="/school/students"><ArrowLeft size={15}/> Liste des élèves</Link></div>
   </header>
   <section className="student-record-content">
    <div className="student-record-header">
