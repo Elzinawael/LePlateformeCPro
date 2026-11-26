@@ -84,6 +84,14 @@ export async function POST(request: NextRequest) {
     return json("Une école ou un membre existe déjà. L'initialisation unique est verrouillée.", 409);
   }
 
+  const { error: guardError } = await admin
+    .from("conduipro_bootstrap_guard")
+    .insert({ singleton: true, owner_email: email });
+
+  if (guardError) {
+    return json("L'initialisation a déjà été utilisée ou est en cours. La création d'un deuxième compte est bloquée.", 409);
+  }
+
   let userId: string | null = null;
   let schoolId: string | null = null;
 
@@ -169,6 +177,7 @@ export async function POST(request: NextRequest) {
       await admin.from("profiles").delete().eq("id", userId);
       await admin.auth.admin.deleteUser(userId);
     }
+    await admin.from("conduipro_bootstrap_guard").delete().eq("singleton", true);
 
     const message = error instanceof Error ? error.message : "Erreur inconnue.";
     return json("La création a échoué. Aucune configuration partielle ne doit être conservée.", 500, {
