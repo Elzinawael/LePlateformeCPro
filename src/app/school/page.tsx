@@ -154,7 +154,7 @@ export default async function SchoolPortal() {
         <nav>
           <a href="/school/courses"><BookOpen size={18} /> Séances théoriques</a>
           <a href="#schedule"><CarFront size={18} /> Leçons pratiques</a>
-          <a href="#documents"><FileCheck2 size={18} /> Documents à vérifier</a>
+          <a href="/school/documents"><FileCheck2 size={18} /> Documents à vérifier</a>
         </nav>
         <div className="sidebar-bottom">
           <div className="help-card">
@@ -197,7 +197,7 @@ export default async function SchoolPortal() {
 
         <div className="dashboard-grid">
           <section className="panel requests-panel" id="requests">
-            <div className="panel-head"><div><h2>Demandes récentes</h2><p>Les cinq dernières demandes reçues</p></div><span className="link-button">{pendingPermits.count ?? 0} permis à vérifier</span></div>
+            <div className="panel-head"><div><h2>Demandes récentes</h2><p>Les cinq dernières demandes reçues</p></div><a className="link-button" href="/school/documents">{pendingPermits.count ?? 0} permis à vérifier</a></div>
             <div className="request-list">
               {requests.length === 0 ? <p className="empty-state">Aucune demande pour le moment.</p> : requests.map((request) => {
                 const student = request.student;
