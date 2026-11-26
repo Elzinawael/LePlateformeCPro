@@ -21,6 +21,8 @@ export async function POST() {
       app_metadata: { ...user.app_metadata, must_change_password: false },
     });
     if (updateError) throw updateError;
+    const { error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError) throw refreshError;
     return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ message: "Le mot de passe a été modifié, mais le compte doit encore être activé. Réessayez." }, { status: 503, headers: { "Cache-Control": "no-store" } });
