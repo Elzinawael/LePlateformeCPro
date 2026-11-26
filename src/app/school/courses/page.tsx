@@ -76,12 +76,12 @@ export default async function CoursesPage({searchParams}:{searchParams:Promise<{
     <div className="panel-head"><div><h2>Séances planifiées</h2><p>Les séances futures apparaissent dans les choix des élèves.</p></div><CalendarClock size={18}/></div>
     {upcoming.length===0?<p className="empty-state">Aucune séance théorique à venir.</p>:<div className="theory-course-list">
      {upcoming.map(session=>{
-      const module=Array.isArray(session.module)?session.module[0]:session.module;
-      const phase=Array.isArray(module?.phase)?module?.phase[0]:module?.phase;
+      const moduleInfo=Array.isArray(session.module)?session.module[0]:session.module;
+      const phase=Array.isArray(moduleInfo?.phase)?moduleInfo?.phase[0]:moduleInfo?.phase;
       const registered=counts.get(session.id)??0;
       return <article className="theory-course-row" key={session.id}>
        <div className="theory-course-icon"><BookOpen size={18}/></div>
-       <div className="theory-course-main"><strong>{session.title}</strong><span>Phase {phase?.phase_number??"—"} · Module {module?.module_number??"—"} — {module?.name??"Module"}</span><small><CalendarClock size={13}/> {dateTime(session.start_at)} · {time(session.start_at)}–{time(session.end_at)}</small><small><MapPin size={13}/> {session.location??"Lieu à confirmer"}</small></div>
+       <div className="theory-course-main"><strong>{session.title}</strong><span>Phase {phase?.phase_number??"—"} · Module {moduleInfo?.module_number??"—"} — {moduleInfo?.name??"Module"}</span><small><CalendarClock size={13}/> {dateTime(session.start_at)} · {time(session.start_at)}–{time(session.end_at)}</small><small><MapPin size={13}/> {session.location??"Lieu à confirmer"}</small></div>
        <div className="theory-course-capacity"><span><Users size={14}/> {registered}/{session.capacity}</span><small>{Math.max(0,session.capacity-registered)} place(s) libre(s)</small></div>
       </article>;
      })}
