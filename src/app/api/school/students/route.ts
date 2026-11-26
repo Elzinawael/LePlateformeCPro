@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   const phone = typeof body.phone === "string" ? body.phone.trim() : "";
   const dateOfBirth = typeof body.dateOfBirth === "string" ? body.dateOfBirth.trim() : "";
 
-  if (!/^[A-Za-z0-9][A-Za-z0-9._/-]{1,39}$/.test(contractNumber)
+  if (!/^[A-Za-z0-9][A-Za-z0-9._/-]{4,39}$/.test(contractNumber)
       || !firstName || firstName.length > 100
       || !lastName || lastName.length > 100
       || (email && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254))
