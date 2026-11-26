@@ -1,7 +1,8 @@
 import { ArrowLeft,CalendarClock,CarFront,Clock3,UserRound } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { completePracticalLesson, schedulePracticalLesson } from "@/app/actions/practical";
+import { completePracticalLesson } from "@/app/actions/practical";
+import PracticalScheduleForm from "./PracticalScheduleForm";
 
 export const dynamic="force-dynamic";
 
@@ -74,14 +75,7 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
         <span className={"request-status status-"+row.status}>{row.status==="scheduled"?"Planifiée":row.status==="in_progress"?"En cours":"À planifier"}</span>
        </div>
        {row.status==="scheduled"&&<p className="student-helper">Créneau actuel : {formatDate(row.scheduled_at)} · Formateur : {row.instructor_name??"Non précisé"}</p>}
-       <form action={schedulePracticalLesson} className="practical-schedule-form">
-        <input type="hidden" name="progress_id" value={row.id}/>
-        <label>Date et heure<input name="scheduled_at" type="datetime-local" required defaultValue={row.scheduled_at?new Date(new Date(row.scheduled_at).getTime()-new Date(row.scheduled_at).getTimezoneOffset()*60000).toISOString().slice(0,16):""}/></label>
-        <label>Nom du formateur<input name="instructor_name" required maxLength={120} defaultValue={row.instructor_name??""} placeholder="Nom du moniteur responsable"/></label>
-        <label>Observation (facultatif)<textarea name="notes" rows={2} maxLength={1000} defaultValue={row.notes??""} placeholder="Consignes ou remarque interne"/></label>
-        <input type="hidden" name="timezone_offset" value={new Date().getTimezoneOffset()}/>
-        <button className="primary-button practical-schedule-submit" type="submit"><CalendarClock size={15}/>{row.status==="scheduled"?"Enregistrer le nouveau créneau":"Planifier la sortie"}</button>
-       </form>
+       <PracticalScheduleForm progressId={row.id} scheduledAt={row.scheduled_at} trainerName={row.instructor_name} notes={row.notes} status={row.status}/>
        {row.status==="scheduled"&&row.scheduled_at&&new Date(row.scheduled_at).getTime()<=Date.now()&&<form action={completePracticalLesson} className="practical-complete-form"><input type="hidden" name="progress_id" value={row.id}/><button className="practical-complete-button" type="submit">Valider la sortie terminée</button></form>}
       </article>;
      })}</div>}
