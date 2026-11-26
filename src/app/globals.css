@@ -253,3 +253,12 @@
 .student-record-link:hover strong{text-decoration:underline}
 @media(max-width:900px){.student-record-stats{grid-template-columns:1fr 1fr}.student-record-details{grid-template-columns:1fr 1fr}.record-module-row{align-items:flex-start;flex-direction:column}.record-progress-form{min-width:0;width:100%;grid-template-columns:110px minmax(120px,1fr) auto}}
 @media(max-width:600px){.student-record-content{padding:24px 14px}.student-record-header{align-items:flex-start;gap:10px;flex-direction:column}.record-identity h1{font-size:22px}.student-record-stats{grid-template-columns:1fr 1fr}.student-record-details{grid-template-columns:1fr 1fr}.record-progress-form{grid-template-columns:1fr}.record-practical-row{align-items:flex-start;flex-wrap:wrap}.record-practical-row>small:last-child{margin-left:28px}}
+
+.phase-transition-content{display:grid;gap:13px}
+.phase-transition-content>div:first-child{display:grid;gap:5px}
+.phase-transition-content>div:first-child strong{font-size:12px;color:#263550}
+.phase-transition-content>div:first-child small{font-size:9px;color:#8995a8}
+.phase-transition-checks{display:flex;flex-wrap:wrap;gap:8px}
+.phase-transition-checks span{padding:6px 9px;border-radius:7px;background:#f5f7fb;color:#68778f;font-size:9px}
+.phase-transition-content form button{border:0;border-radius:8px;background:#426bd1;color:#fff;padding:9px 13px;font-size:10px;font-weight:700;cursor:pointer}
+@media(max-width:600px){.phase-transition-checks{flex-direction:column;align-items:flex-start}}
