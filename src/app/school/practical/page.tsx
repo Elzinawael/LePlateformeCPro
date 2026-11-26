@@ -1,7 +1,7 @@
 import { ArrowLeft,CalendarClock,CarFront,Clock3,UserRound } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { schedulePracticalLesson } from "@/app/actions/practical";
+import { completePracticalLesson, schedulePracticalLesson } from "@/app/actions/practical";
 
 export const dynamic="force-dynamic";
 
@@ -80,7 +80,10 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
         <label>Nom du formateur<input name="instructor_name" required maxLength={120} defaultValue={row.instructor_name??""} placeholder="Nom du moniteur responsable"/></label>
         <label>Observation (facultatif)<textarea name="notes" rows={2} maxLength={1000} defaultValue={row.notes??""} placeholder="Consignes ou remarque interne"/></label>
         <input type="hidden" name="timezone_offset" value={new Date().getTimezoneOffset()}/>
-        <button className="primary-button" type="submit"><CalendarClock size={15}/>{row.status==="scheduled"?"Enregistrer le nouveau créneau":"Planifier la sortie"}</button>
+        <div className="practical-form-actions">
+         <button className="primary-button" type="submit"><CalendarClock size={15}/>{row.status==="scheduled"?"Enregistrer le nouveau créneau":"Planifier la sortie"}</button>
+         {row.status==="scheduled"&&row.scheduled_at&&new Date(row.scheduled_at).getTime()<=Date.now()&&<form action={completePracticalLesson}><input type="hidden" name="progress_id" value={row.id}/><button className="practical-complete-button" type="submit">Valider la sortie terminée</button></form>}
+        </div>
        </form>
       </article>;
      })}</div>}
