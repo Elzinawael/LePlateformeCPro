@@ -2,6 +2,7 @@ import { ArrowRight,ArrowLeft,BookOpen,CarFront,CheckCircle2,Clock3,GraduationCa
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { updateAssignedPracticalProgress } from "@/app/actions/instructor";
+import { signOut } from "@/app/actions/auth";
 
 export const dynamic="force-dynamic";
 
@@ -62,7 +63,7 @@ export default async function InstructorPortal({searchParams}:{searchParams:Prom
  return <main className="instructor-shell">
   <header className="students-admin-header">
    <a className="students-brand" href="/school/instructor"><span className="brand-mark"><CarFront size={20}/></span><span><strong>ConduiPRO</strong><small>ESPACE INSTRUCTEUR</small></span></a>
-   <div className="students-head-right"><span>{school?.name??"Votre école"}</span><a href="/login"><ArrowLeft size={15}/> Quitter</a></div>
+   <div className="students-head-right"><span>{school?.name??"Votre école"}</span><form action={signOut}><button className="student-logout" type="submit"><ArrowLeft size={15}/> Quitter</button></form></div>
   </header>
   <section className="instructor-content">
    <div className="students-page-heading"><div><p className="hero-kicker">ESPACE INSTRUCTEUR · {school?.name?.toLocaleUpperCase("fr-CA")??""}</p><h1>Bonjour, {instructorName}</h1><p>Consultez uniquement les élèves qui vous sont affectés et mettez à jour leurs leçons pratiques.</p></div><div className="students-total"><GraduationCap size={18}/><strong>{assignedStudents.length}</strong><small>élèves affectés</small></div></div>
