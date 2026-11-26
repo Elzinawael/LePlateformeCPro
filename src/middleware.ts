@@ -60,13 +60,17 @@ export async function middleware(request:NextRequest) {
     const {data:membership,error:membershipError}=await supabase.from("school_members")
       .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
     if(membershipError||!membership) return redirectWithCookies(request,"/login?error=school-access",response);
+    const {data:school,error:schoolError}=await supabase.from("schools").select("status").eq("id",membership.school_id).maybeSingle();
+    if(schoolError||!school||school.status!=="active") return redirectWithCookies(request,"/login?error=school-suspended",response);
   }
 
   if(pathname.startsWith("/student")) {
     if(profile.account_type!=="student") return redirectWithCookies(request,"/admin",response);
     const {data:student,error:studentError}=await supabase.from("students")
-      .select("id").eq("user_id",user.id).maybeSingle();
+      .select("id,school_id").eq("user_id",user.id).maybeSingle();
     if(studentError||!student) return redirectWithCookies(request,"/login?error=student-access",response);
+    const {data:school,error:schoolError}=await supabase.from("schools").select("status").eq("id",student.school_id).maybeSingle();
+    if(schoolError||!school||school.status!=="active") return redirectWithCookies(request,"/login?error=school-suspended",response);
   }
 
   return response;
