@@ -147,6 +147,7 @@ export default async function SchoolPortal() {
         <nav>
           <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d&apos;ensemble</a>
           <a href="/school/requests"><Clock3 size={18} /> Demandes</a>
+          <a href="/school/instructors"><Users size={18} /> Affectations</a>
           <a href="/school/students"><Users size={18} /> Élèves</a>
         </nav>
         <div className="nav-label spaced">FORMATION</div>
