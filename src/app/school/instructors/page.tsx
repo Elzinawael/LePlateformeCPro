@@ -10,7 +10,7 @@ export const dynamic="force-dynamic";
 type Person={id:string;first_name:string|null;last_name:string|null;email:string|null};
 type Student={id:string;first_name:string;last_name:string;contract_number:string};
 type Assignment={id:string;student_id:string;instructor_user_id:string;active:boolean;assigned_at:string};
-type Staff={user_id:string;role:string};
+type Staff={user_id:string;role:string;status:string};
 
 const notices:Record<string,string>={
  assigned:"L’instructeur a été affecté à l’élève.",
@@ -40,7 +40,7 @@ export default async function InstructorAssignmentsPage({searchParams}:{searchPa
 
  const [{data:school},{data:staff},{data:students},{data:assignments}]=await Promise.all([
   supabase.from("schools").select("name").eq("id",membership.school_id).maybeSingle(),
-  supabase.from("school_members").select("user_id,role").eq("school_id",membership.school_id).eq("status","active"),
+  supabase.from("school_members").select("user_id,role,status").eq("school_id",membership.school_id).in("status",["active","invited"]),
   supabase.from("students").select("id,first_name,last_name,contract_number").eq("school_id",membership.school_id).eq("status","active").order("last_name").order("first_name").limit(250),
   supabase.from("instructor_student_assignments").select("id,student_id,instructor_user_id,active,assigned_at").eq("school_id",membership.school_id).order("assigned_at",{ascending:false}).limit(300)
  ]);
@@ -58,7 +58,7 @@ export default async function InstructorAssignmentsPage({searchParams}:{searchPa
   }
  }
  const profileMap=new Map(profiles.map(p=>[p.id,p]));
- const instructorOptions=team.filter(member=>member.role==="instructor").map(member=>({id:member.user_id,label:personName(profileMap.get(member.user_id),member.user_id)}));
+ const instructorOptions=team.filter(member=>member.role==="instructor"&&member.status==="active").map(member=>({id:member.user_id,label:personName(profileMap.get(member.user_id),member.user_id)}));
  const canInvite=["owner","admin"].includes(membership.role);
  const activeAssignments=((assignments??[]) as Assignment[]).filter(a=>a.active);
  const studentMap=new Map(((students??[]) as Student[]).map(s=>[s.id,s]));
@@ -93,7 +93,7 @@ export default async function InstructorAssignmentsPage({searchParams}:{searchPa
    </section>
    <section className="students-list-panel">
     <div className="panel-head"><div><h2>Équipe active</h2><p>Administrateurs, employés et instructeurs de votre école.</p></div><Users size={18}/></div>
-    {team.length===0?<p className="empty-state">Aucun autre membre actif.</p>:<div className="instructor-student-list">{team.map(member=><div key={member.user_id}><span className="assignment-instructor-icon"><UserCheck size={17}/></span><span><strong>{personName(profileMap.get(member.user_id),member.user_id)}</strong><small>{member.role==="admin"?"Administrateur":member.role==="owner"?"Propriétaire":member.role==="employee"?"Employé":"Instructeur"}</small></span></div>)}</div>}
+    {team.length===0?<p className="empty-state">Aucun autre membre actif.</p>:<div className="instructor-student-list">{team.map(member=><div key={member.user_id}><span className="assignment-instructor-icon"><UserCheck size={17}/></span><span><strong>{personName(profileMap.get(member.user_id),member.user_id)}</strong><small>{member.role==="admin"?"Administrateur":member.role==="owner"?"Propriétaire":member.role==="employee"?"Employé":"Instructeur"} · {member.status==="invited"?"Invitation en attente":"Actif"}</small></span></div>)}</div>}
    </section>
    <section className="students-list-panel">
     <div className="panel-head"><div><h2>Affectations actives</h2><p>Les instructeurs voient uniquement les élèves actifs qui leur sont affectés.</p></div><Users size={18}/></div>
