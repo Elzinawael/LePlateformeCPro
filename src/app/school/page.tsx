@@ -123,7 +123,7 @@ export default async function SchoolPortal() {
   const requests = (requestResult.data ?? []) as unknown as RequestRow[];
   const theorySessions = (theoryResult.data ?? []) as unknown as TheorySession[];
   const practicalSessions = (practicalResult.data ?? []) as unknown as PracticalSession[];
-  const firstName = profile?.first_name?.trim() || "Bonjour";
+  const firstName = profile?.first_name?.trim() || "";
   const schoolName = school?.name || "Votre établissement";
   const today = new Intl.DateTimeFormat("fr-CA", {
     weekday: "long",
@@ -183,7 +183,7 @@ export default async function SchoolPortal() {
         <div className="page-heading">
           <div>
             <p className="eyebrow">{schoolName.toLocaleUpperCase("fr-CA")}</p>
-            <h1>Bonjour, {firstName} <span>👋</span></h1>
+            <h1>Bonjour{firstName ? ", " + firstName : ""} <span>👋</span></h1>
             <p className="subtitle">Voici l'activité réelle de votre établissement.</p>
           </div>
           <a className="primary-button" href="#requests">Consulter les demandes <ArrowRight size={15} /></a>
