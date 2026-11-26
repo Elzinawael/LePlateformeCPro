@@ -8,7 +8,8 @@ function safeNext(value:string|null) {
 
 export async function GET(request:NextRequest) {
   const code=request.nextUrl.searchParams.get("code");
-  const destination=safeNext(request.nextUrl.searchParams.get("next"));
+  const requestedNext=request.nextUrl.searchParams.get("next");
+  const destination=requestedNext?safeNext(requestedNext):null;
 
   if(!code) {
     return NextResponse.redirect(new URL("/login?error=invite-confirmation",request.url));
@@ -47,5 +48,8 @@ export async function GET(request:NextRequest) {
     return NextResponse.redirect(new URL("/login?error=membership-activation",request.url));
   }
 
-  return NextResponse.redirect(new URL("/auth/set-password?next="+encodeURIComponent(destination),request.url));
+  const passwordSetupUrl=destination
+    ? "/auth/set-password?next="+encodeURIComponent(destination)
+    : "/auth/set-password";
+  return NextResponse.redirect(new URL(passwordSetupUrl,request.url));
 }
