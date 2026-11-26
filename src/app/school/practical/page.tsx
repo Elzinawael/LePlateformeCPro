@@ -14,8 +14,8 @@ const notices:Record<string,string>={
  scheduled:"La leçon pratique a été planifiée.",
  invalid:"Vérifiez la date, le formateur et les informations saisies.",
  "datetime-invalid":"Choisissez une date et une heure futures.",
- "phase-invalid":"Cette sortie ne fait pas partie de la phase actuelle de l'élève.",
- conflict:"Le formateur ou l'élève possède déjà une leçon dans ce créneau de 55 minutes.",
+ "phase-invalid":"Cette sortie ne fait pas partie de la phase actuelle de l&apos;élève.",
+ conflict:"Le formateur ou l&apos;élève possède déjà une leçon dans ce créneau de 55 minutes.",
  "trainer-required":"Indiquez le nom du formateur responsable.",
  "schedule-error":"La planification n'a pas pu être enregistrée."
 };
@@ -53,7 +53,7 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
    <div className="students-head-right"><span>{school?.name??"Votre école"}</span><a href="/school"><ArrowLeft size={15}/> Tableau de bord</a></div>
   </header>
   <section className="practical-content">
-   <div className="students-page-heading"><div><p className="hero-kicker">FORMATION PRATIQUE</p><h1>Leçons pratiques</h1><p>Planifiez les sorties de la phase actuelle et consignez le nom du formateur de l'école.</p></div><div className="students-total"><CarFront size={18}/><strong>{scheduled}</strong><small>planifiées</small></div></div>
+   <div className="students-page-heading"><div><p className="hero-kicker">FORMATION PRATIQUE</p><h1>Leçons pratiques</h1><p>Planifiez les sorties de la phase actuelle et consignez le nom du formateur de l&apos;école.</p></div><div className="students-total"><CarFront size={18}/><strong>{scheduled}</strong><small>planifiées</small></div></div>
    {notice&&<div className="student-notice" role="status">{notice}</div>}
    {progressError&&<div className="student-notice" role="alert">Impossible de charger les sorties pratiques.</div>}
    <div className="instructor-metrics">
@@ -62,7 +62,7 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
     <article><span><CarFront size={18}/></span><strong>{completed}</strong><small>Sorties terminées</small></article>
    </div>
    <section className="students-list-panel">
-    <div className="panel-head"><div><h2>Sorties de la phase actuelle</h2><p>Une sortie ne peut être planifiée que lorsque l'élève est dans la phase correspondante.</p></div><CalendarClock size={18}/></div>
+    <div className="panel-head"><div><h2>Sorties de la phase actuelle</h2><p>Une sortie ne peut être planifiée que lorsque l&apos;élève est dans la phase correspondante.</p></div><CalendarClock size={18}/></div>
     {relevant.length===0?<p className="empty-state">Aucune sortie pratique à planifier pour les phases actuelles des élèves.</p>:
      <div className="practical-schedule-list">{relevant.map(row=>{
       const student=row.student!;
@@ -86,7 +86,7 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
      })}</div>}
    </section>
    <section className="students-list-panel">
-    <div className="panel-head"><div><h2>Historique des sorties</h2><p>Sorties déjà réalisées et validées par l'école.</p></div><UserRound size={18}/></div>
+    <div className="panel-head"><div><h2>Historique des sorties</h2><p>Sorties déjà réalisées et validées par l&apos;école.</p></div><UserRound size={18}/></div>
     {progress.filter(row=>row.status==="completed").length===0?<p className="empty-state">Aucune sortie terminée pour le moment.</p>:
      <div className="module-list">{progress.filter(row=>row.status==="completed").map(row=><div className="module-row" key={row.id}><span className="check-complete"><CarFront size={13}/></span><span>{row.student?.first_name} {row.student?.last_name} · Sortie {row.lesson?.lesson_number} — {row.lesson?.name}</span><small>{formatDate(row.scheduled_at)}</small></div>)}</div>}
    </section>
