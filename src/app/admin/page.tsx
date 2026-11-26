@@ -36,7 +36,7 @@ export default async function PlatformAdminPage() {
       <div className="students-head-right"><span>Administration ConduiPRO</span><form action={signOut}><button className="student-logout" type="submit"><LogOut size={15}/> Déconnexion</button></form></div>
     </header>
     <section className="admin-content">
-      <div className="students-page-heading"><div><p className="hero-kicker">ESPACE ADMINISTRATEUR</p><h1>Gestion des écoles</h1><p>Crée les accès des écoles clientes et consulte l'activité globale de ConduiPRO.</p></div><div className="students-total"><School size={18}/><strong>{rows.length}</strong><small>écoles</small></div></div>
+      <div className="students-page-heading"><div><p className="hero-kicker">ESPACE ADMINISTRATEUR</p><h1>Gestion des écoles</h1><p>Crée les accès des écoles clientes et consulte l&apos;activité globale de ConduiPRO.</p></div><div className="students-total"><School size={18}/><strong>{rows.length}</strong><small>écoles</small></div></div>
       <div className="metric-grid">
         <article className="metric-card"><div className="metric-icon blue"><School size={19}/></div><p>Écoles</p><strong>{rows.length}</strong><small>Établissements enregistrés</small></article>
         <article className="metric-card"><div className="metric-icon violet"><Users size={19}/></div><p>Élèves</p><strong>{studentCount.count??0}</strong><small>Dossiers sur la plateforme</small></article>
