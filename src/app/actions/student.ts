@@ -124,37 +124,46 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
   const student = await requireStudent(supabase);
 
   if (!student) redirect("/login?error=student-access");
-  if (!student.current_phase_id) redirect("/student?notice=permit-locked");
 
-  const { data: phase, error: phaseError } = await supabase
+  const { data: schoolPhaseOne, error: schoolPhaseError } = await supabase
     .from("curriculum_phases")
-    .select("phase_number")
-    .eq("id", student.current_phase_id)
-    .maybeSingle();
-
-  if (phaseError || phase?.phase_number !== 2) {
-    redirect("/student?notice=permit-locked");
-  }
-
-  const { data: milestoneModule, error: milestoneError } = await supabase
-    .from("curriculum_modules")
     .select("id")
-    .eq("phase_id", student.current_phase_id)
-    .eq("module_number", 5)
+    .eq("school_id", student.school_id)
+    .eq("phase_number", 1)
     .maybeSingle();
+  if (schoolPhaseError) redirect("/student?notice=permit-locked");
 
-  if (milestoneError || !milestoneModule) {
+  const { data: globalPhaseOne, error: globalPhaseError } = schoolPhaseOne
+    ? { data: null, error: null }
+    : await supabase
+        .from("curriculum_phases")
+        .select("id")
+        .is("school_id", null)
+        .eq("phase_number", 1)
+        .maybeSingle();
+  if (globalPhaseError) redirect("/student?notice=permit-locked");
+
+  const phaseOneId = schoolPhaseOne?.id ?? globalPhaseOne?.id;
+  if (!phaseOneId) redirect("/student?notice=permit-locked");
+
+  const { data: phaseOneModules, error: modulesError } = await supabase
+    .from("curriculum_modules")
+    .select("id,module_number")
+    .eq("phase_id", phaseOneId)
+    .gte("module_number", 1)
+    .lte("module_number", 5);
+  if (modulesError || !phaseOneModules || phaseOneModules.length !== 5) {
     redirect("/student?notice=permit-locked");
   }
 
-  const { data: milestoneProgress } = await supabase
+  const { data: completedRows, error: progressError } = await supabase
     .from("student_module_progress")
-    .select("status")
+    .select("module_id,status")
     .eq("student_id", student.id)
-    .eq("module_id", milestoneModule.id)
-    .maybeSingle();
-
-  if (milestoneProgress?.status !== "completed") {
+    .eq("school_id", student.school_id)
+    .in("module_id", phaseOneModules.map((module) => module.id))
+    .eq("status", "completed");
+  if (progressError || completedRows?.length !== 5) {
     redirect("/student?notice=permit-locked");
   }
 
