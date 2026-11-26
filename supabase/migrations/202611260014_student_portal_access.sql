@@ -53,8 +53,7 @@ using (
     select 1
     from public.curriculum_phases p
     join public.students s
-      on s.current_phase_id = p.id
-     and s.user_id = (select auth.uid())
+      on s.user_id = (select auth.uid())
     where p.id = curriculum_modules.phase_id
       and (p.school_id is null or p.school_id = s.school_id)
   )
@@ -69,8 +68,7 @@ using (
     select 1
     from public.curriculum_phases p
     join public.students s
-      on s.current_phase_id = p.id
-     and s.user_id = (select auth.uid())
+      on s.user_id = (select auth.uid())
     where p.id = practical_lessons.phase_id
       and (p.school_id is null or p.school_id = s.school_id)
   )
@@ -118,6 +116,19 @@ with check (
       and s.user_id = (select auth.uid())
       and student_documents.storage_path like
         s.school_id::text || '/' || s.id::text || '/%'
+      and exists (
+        select 1
+        from public.curriculum_phases phase_two
+        join public.curriculum_modules milestone_module
+          on milestone_module.phase_id = phase_two.id
+         and milestone_module.module_number = 5
+        join public.student_module_progress milestone_progress
+          on milestone_progress.module_id = milestone_module.id
+         and milestone_progress.student_id = s.id
+         and milestone_progress.status = 'completed'
+        where phase_two.id = s.current_phase_id
+          and phase_two.phase_number = 2
+      )
   )
 );
 
@@ -140,6 +151,19 @@ with check (
       and s.user_id = (select auth.uid())
       and student_licenses.document_path like
         s.school_id::text || '/' || s.id::text || '/%'
+      and exists (
+        select 1
+        from public.curriculum_phases phase_two
+        join public.curriculum_modules milestone_module
+          on milestone_module.phase_id = phase_two.id
+         and milestone_module.module_number = 5
+        join public.student_module_progress milestone_progress
+          on milestone_progress.module_id = milestone_module.id
+         and milestone_progress.student_id = s.id
+         and milestone_progress.status = 'completed'
+        where phase_two.id = s.current_phase_id
+          and phase_two.phase_number = 2
+      )
   )
 );
 
