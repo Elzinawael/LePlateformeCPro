@@ -147,12 +147,13 @@ export default async function SchoolPortal() {
         <nav>
           <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d&apos;ensemble</a>
           <a href="/school/requests"><Clock3 size={18} /> Demandes</a>
-          <a href="#schedule"><CalendarDays size={18} /> Calendrier</a>
+          <a href="/school/courses"><BookOpen size={18} /> Cours théoriques</a>
+          <a href="/school/courses"><CalendarDays size={18} /> Calendrier</a>
           <a href="/school/students"><Users size={18} /> Élèves</a>
         </nav>
         <div className="nav-label spaced">FORMATION</div>
         <nav>
-          <a href="#schedule"><BookOpen size={18} /> Cours théoriques</a>
+          <a href="/school/courses"><BookOpen size={18} /> Cours théoriques</a>
           <a href="#schedule"><CarFront size={18} /> Leçons pratiques</a>
           <a href="#documents"><FileCheck2 size={18} /> Documents à vérifier</a>
         </nav>
