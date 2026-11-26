@@ -1,4 +1,4 @@
-"import { ArrowLeft, BookOpen, CarFront, CheckCircle2, Clock3, Filter, MessageSquareText } from "lucide-react";
+import { ArrowLeft, BookOpen, CarFront, CheckCircle2, Clock3, Filter, MessageSquareText } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { processCourseRequest } from "@/app/actions/requests";
