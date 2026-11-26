@@ -217,22 +217,10 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
   }
 
   const path = student.school_id + "/" + student.id + "/" + randomUUID() + "." + extension;
-  const { error: uploadError } = await supabase.storage
-    .from("student-documents")
-    .upload(path, bytes, {
-      contentType: file.type,
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-  if (uploadError) redirect("/student?notice=upload-error");
-
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    await supabase.storage.from("student-documents").remove([path]);
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
+  // Create the pending metadata first so the student can clean it up if Storage fails.
   const { error: documentError } = await supabase.from("student_documents").insert({
     school_id: student.school_id,
     student_id: student.id,
@@ -245,9 +233,20 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
     uploaded_by: user.id,
   });
 
-  if (documentError) {
-    await supabase.storage.from("student-documents").remove([path]);
-    redirect("/student?notice=permit-record-error");
+  if (documentError) redirect("/student?notice=permit-record-error");
+
+  const { error: uploadError } = await supabase.storage
+    .from("student-documents")
+    .upload(path, bytes, {
+      contentType: file.type,
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (uploadError) {
+    await supabase.from("student_documents").delete()
+      .eq("student_id", student.id).eq("storage_path", path);
+    redirect("/student?notice=upload-error");
   }
 
   const { error: licenseError } = await supabase.from("student_licenses").insert({
