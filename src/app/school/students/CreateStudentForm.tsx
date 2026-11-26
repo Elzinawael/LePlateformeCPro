@@ -53,7 +53,7 @@ export default function CreateStudentForm({schoolCode}:{schoolCode:string}) {
   return <>
     <section className="students-create-panel">
       <div className="panel-head"><div><h2>Créer un élève et son accès</h2><p>Le dossier, le compte de connexion et le suivi pédagogique sont créés ensemble.</p></div><UserPlus size={19}/></div>
-      <div className="student-school-code"><span>Code de connexion de votre école</span><strong>{schoolCode}</strong><small>L'élève devra saisir ce code, son numéro de contrat et son mot de passe pour se connecter.</small></div>
+      <div className="student-school-code"><span>Code de connexion de votre école</span><strong>{schoolCode}</strong><small>L&apos;élève devra saisir ce code, son numéro de contrat et son mot de passe pour se connecter.</small></div>
       <form onSubmit={submit} className="students-create-form">
         <label>Numéro de contrat<input name="contract_number" required maxLength={40} value={contractNumber} onChange={e=>setContractNumber(e.target.value)} placeholder="Ex. CP-2026-0184"/></label>
         <label>Prénom<input name="first_name" required maxLength={100} value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="Prénom"/></label>
@@ -67,7 +67,7 @@ export default function CreateStudentForm({schoolCode}:{schoolCode:string}) {
     </section>
     {created&&<section className="created-credentials" role="status">
       <div><Check size={17}/><strong>Compte élève créé : {created.student.firstName} {created.student.lastName}</strong></div>
-      <p>Remets ces identifiants à l'élève par un canal sécurisé. Le mot de passe ne sera plus affiché après avoir quitté cet écran.</p>
+      <p>Remets ces identifiants à l&apos;élève par un canal sécurisé. Le mot de passe ne sera plus affiché après avoir quitté cet écran.</p>
       <dl><dt>Code école</dt><dd>{created.credentials.schoolCode}</dd><dt>Identifiant (numéro de contrat)</dt><dd>{created.credentials.contractNumber}</dd><dt>Mot de passe initial</dt><dd><code>{created.credentials.password}</code></dd></dl>
       <button type="button" className="primary-button" onClick={copyCredentials}><Copy size={15}/>{copied?"Identifiants copiés":"Copier les identifiants"}</button>
     </section>}
