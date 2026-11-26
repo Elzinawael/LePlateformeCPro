@@ -44,9 +44,9 @@ export function PermitUploadForm() {
     <form action={uploadLearnerPermit} className="student-request-form">
       <label htmlFor="license_number">Numéro de permis (facultatif)</label>
       <input id="license_number" name="license_number" maxLength={64} />
-      <label htmlFor="expiry_date">Date d'expiration (facultatif)</label>
+      <label htmlFor="expiry_date">Date d&apos;expiration (facultatif)</label>
       <input id="expiry_date" name="expiry_date" type="date" />
-      <label htmlFor="permit_file">Copie du permis d'apprenti conducteur</label>
+      <label htmlFor="permit_file">Copie du permis d&apos;apprenti conducteur</label>
       <input
         id="permit_file"
         name="permit_file"
