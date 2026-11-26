@@ -1,37 +1,32 @@
-# ConduiPRO — Security validation plan (before applying migrations)
+# ConduiPRO — plan et statut de validation sécurité
 
-**Status: Draft — migrations must not be applied to production until reviewed and tested.**
+## Statut au 26 novembre 2026
+La base active applique les migrations de schéma, d'isolation tenant, de stockage privé, de rôles propriétaire, de helpers RLS privés, de contrats et de paiements.
 
-## Review findings in the current V1 migrations
-1. RLS policies are a first draft, not production-ready.
-2. Several school-side policies currently grant all active school members (including instructor role) broad write access. This needs role-specific restrictions before launch.
-3. The student request INSERT policy uses unqualified column names in a correlated condition; rewrite with explicit aliases to avoid ambiguity and verify that request type/module/phase constraints are enforced.
-4. Direct student table/profile updates should be limited to safe fields; self-update policies are currently too broad for profile fields.
-5. Finance policies are school-role constrained, but invoice/payment cross-record school ownership needs database-level validation.
-6. Curriculum global/school-specific uniqueness with nullable school_id needs careful validation because PostgreSQL UNIQUE treats NULL values as distinct. Consider unique indexes using NULLS NOT DISTINCT or a global template strategy.
-7. Policies for Storage buckets are not included yet.
-8. School/student portal routing separation is not sufficient alone; authorization must be enforced server-side and by RLS.
-9. Audit log writes should be implemented via trusted server-side functions and cannot be user-forged.
-10. Multi-tenant consistency should be strengthened: child records must be guaranteed to reference parents from the same school. Foreign keys on IDs alone do not enforce school_id matching.
+Les points suivants sont déjà appliqués :
+1. Les fonctions RLS internes sont dans `private`; les wrappers publics ne sont pas exécutables par les clients.
+2. Les rôles scolaires actifs sont limités à `owner`; les anciennes politiques Employee/Instructor ont été retirées ou ramenées à owner-only.
+3. Le compte plateforme utilise `platform_admins`, séparé des adhésions scolaires.
+4. Les fonctions de contrat et paiement sont SECURITY INVOKER et soumises à RLS.
+5. Les paiements sont atomiques, verrouillés par facture et limités au solde restant.
+6. Le stockage des contrats/permis est privé et limité au chemin école/élève.
+7. Les clés étrangères manquantes ont des index, et les principales politiques RLS évitent la réévaluation par ligne de `auth.uid()`.
 
-## Test matrix (use separate test accounts and tenants)
-- Anonymous user: cannot read any tenant data.
-- School A owner/admin: can read/manage School A, cannot read School B.
-- School A employee: allowed operational functions only; cannot manage roles/security settings.
-- School A instructor: only assigned/approved scope; no finance access.
-- School A student: can read their own student-facing record only; cannot read another student.
-- Student: cannot write progress, completion, invoice/payment, school settings, membership or audit records.
-- School student: cannot access school portal routes or staff APIs.
-- School member: cannot access student portal as a student unless linked student account.
-- Cross-school ID substitution: every query must fail closed.
-- Storage: school and student access limited to approved private document paths.
-- Revoked/disabled membership: access is immediately denied.
-- Suspended school: operational access blocked by server authorization.
+## Tests déjà exécutés
+- CI GitHub : audit dépendances, ESLint et build Next.js réussis sur les derniers commits validés.
+- Simulations JWT owner/élève sur la base réelle de démonstration.
+- Transactions annulées pour planification pratique, décision sur demande, contrat, facture et paiement partiel.
+- Vérification que les anciens comptes secondaires n'ont plus d'adhésion active.
 
-## Required before production
-- Correct the current security migration and policies.
-- Add tenant-consistent composite foreign keys or trusted routines where appropriate.
-- Implement private Storage buckets and policies.
-- Implement safe profile update routines.
-- Implement student account provisioning via server-side Auth Admin.
-- Test RLS with SQL tests or integration tests using realistic role accounts.
+## À compléter avant la production commerciale
+- Tester deux écoles indépendantes pour valider tous les scénarios cross-tenant.
+- Utiliser un vrai navigateur pour tester les parcours école et élève, les mots de passe temporaires, la récupération de mot de passe et les erreurs de formulaire.
+- Envoyer et recevoir les courriels réels via SMTP pour les propriétaires et la récupération de mot de passe.
+- Tester upload, lecture signée, rejet et resoumission de permis dans le bucket privé.
+- Activer la protection contre les mots de passe compromis dans Supabase Auth si le plan le permet.
+- Effectuer une revue de conformité et de conservation des dossiers avant d'utiliser des données personnelles réelles d'élèves.
+
+## Limites connues
+- La base ne contient actuellement qu'un établissement de démonstration.
+- Le Security Advisor mentionne deux tables internes en RLS sans politique : le verrou historique de bootstrap et la table d'affectations instructeur retirée de l'usage client. Elles n'accordent aucun accès aux rôles applicatifs.
+- La protection des mots de passe compromis est désactivée dans la configuration Auth actuelle.
