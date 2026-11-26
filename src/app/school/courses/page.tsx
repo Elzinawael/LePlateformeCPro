@@ -40,8 +40,12 @@ export default async function CoursesPage({searchParams}:{searchParams:Promise<{
   supabase.from("theory_courses").select("id,title,start_at,end_at,capacity,location,module_id,status,module:curriculum_modules(name,module_number,phase:curriculum_phases(phase_number))").eq("school_id",membership.school_id).order("start_at").limit(100),
   supabase.from("theory_course_enrollments").select("course_id,status").eq("school_id",membership.school_id).eq("status","enrolled")
  ]);
- const phases=[...(schoolPhases??[]),...(globalPhases??[])];
- const phaseIds=[...new Set(phases.map((p)=>p.id))];
+ const phases=[1,2,3,4].flatMap(number=>{
+  const selected=(schoolPhases??[]).find(p=>p.phase_number===number)
+    ??(globalPhases??[]).find(p=>p.phase_number===number);
+  return selected?[selected]:[];
+ });
+ const phaseIds=phases.map(p=>p.id);
  const {data:rawModules}=phaseIds.length
   ?await supabase.from("curriculum_modules").select("id,name,module_number,phase_id,is_active").in("phase_id",phaseIds).eq("is_active",true).order("module_number")
   :{data:[]};
