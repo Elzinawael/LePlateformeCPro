@@ -18,3 +18,10 @@ The three SECURITY DEFINER helpers `is_school_member`, `has_school_role` and `cu
 
 ## Application delivery
 GitHub Actions CI runs ESLint and a production build. The first complete green run was observed on commit `7615ab5277dd43f8b460f0e13c51976fc66813ab`. Each later commit triggers a new check; the latest run should be confirmed before release.
+
+
+## Permit review
+- Timestamped migration `20261126182118_atomic_student_permit_review` is applied.
+- School owner/admin/employee can review a pending permit with a reason required for rejection.
+- The RPC updates `student_licenses` and the matching `student_documents` row atomically, with reviewer identity and timestamp.
+- A five-minute signed Storage URL is shown in the school portal; the bucket remains private.
