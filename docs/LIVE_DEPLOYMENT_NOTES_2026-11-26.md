@@ -25,3 +25,10 @@ GitHub Actions CI runs ESLint and a production build. The first complete green r
 - School owner/admin/employee can review a pending permit with a reason required for rejection.
 - The RPC updates `student_licenses` and the matching `student_documents` row atomically, with reviewer identity and timestamp.
 - A five-minute signed Storage URL is shown in the school portal; the bucket remains private.
+
+
+## One-time demo bootstrap
+- Migration `20261126190134_create_one_time_school_bootstrap_guard` creates a private singleton record used to prevent concurrent or repeated initial provisioning.
+- The server endpoint `/api/bootstrap/first-school` requires `CONDUIPRO_BOOTSTRAP_TOKEN` and the server-only Supabase secret key.
+- The first run provisions a demo school and one account for each app role, plus theory/practical request fixtures and an instructor practical slot.
+- Temporary passwords are generated server-side and returned once to the protected setup page. Remove the bootstrap token from Hostinger after the successful run.
