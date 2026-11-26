@@ -78,7 +78,7 @@ export default function LoginPage() {
 
       <form onSubmit={submit}>
         {mode==="school"?<>
-          <label htmlFor="email">Adresse courriel de l'école</label>
+          <label htmlFor="email">Adresse courriel de l&apos;école</label>
           <div className="login-input"><Mail size={17} aria-hidden="true"/><input id="email" name="email" type="email" autoComplete="username" placeholder="ecole@exemple.ca" required value={email} onChange={event=>setEmail(event.target.value)}/></div>
         </>:<>
           <label htmlFor="school-code">Code de votre école</label>
