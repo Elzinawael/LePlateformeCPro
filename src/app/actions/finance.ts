@@ -126,7 +126,7 @@ export async function recordStudentPayment(formData:FormData):Promise<void> {
 }
 
 export async function uploadStudentContract(formData:FormData):Promise<void> {
-  const {supabase,user,schoolId}=await requireSchoolOwner();
+  const {supabase,schoolId}=await requireSchoolOwner();
   const studentId=cleanText(formData.get("student_id"),64);
   const file=formData.get("contract_file");
   if(!studentId||!(file instanceof File)||file.size===0||file.size>10*1024*1024) {
