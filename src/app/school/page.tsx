@@ -147,15 +147,15 @@ export default async function SchoolPortal() {
         <div className="nav-label">ESPACE ÉCOLE</div>
         <nav>
           <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d&apos;ensemble</a>
-          <a href="/school/requests"><Clock3 size={18} /> Demandes</a>
-          <a href="/school/instructors"><Users size={18} /> Affectations</a>
-          <a href="/school/students"><Users size={18} /> Élèves</a>
+          <Link href="/school/requests"><Clock3 size={18} /> Demandes</Link>
+          <Link href="/school/instructors"><Users size={18} /> Affectations</Link>
+          <Link href="/school/students"><Users size={18} /> Élèves</Link>
         </nav>
         <div className="nav-label spaced">FORMATION</div>
         <nav>
-          <a href="/school/courses"><BookOpen size={18} /> Séances théoriques</a>
+          <Link href="/school/courses"><BookOpen size={18} /> Séances théoriques</Link>
           <a href="#schedule"><CarFront size={18} /> Leçons pratiques</a>
-          <a href="/school/documents"><FileCheck2 size={18} /> Documents à vérifier</a>
+          <Link href="/school/documents"><FileCheck2 size={18} /> Documents à vérifier</Link>
         </nav>
         <div className="sidebar-bottom">
           <div className="help-card">
@@ -186,7 +186,7 @@ export default async function SchoolPortal() {
             <h1>Bonjour{firstName ? ", " + firstName : ""} <span>👋</span></h1>
             <p className="subtitle">Voici l&apos;activité réelle de votre établissement.</p>
           </div>
-          <a className="primary-button" href="/school/requests">Consulter les demandes <ArrowRight size={15} /></a>
+          <Link className="primary-button" href="/school/requests">Consulter les demandes <ArrowRight size={15} /></Link>
         </div>
 
         <div className="metric-grid">
@@ -198,7 +198,7 @@ export default async function SchoolPortal() {
 
         <div className="dashboard-grid">
           <section className="panel requests-panel" id="requests">
-            <div className="panel-head"><div><h2>Demandes récentes</h2><p>Les cinq dernières demandes reçues</p></div><a className="link-button" href="/school/documents">{pendingPermits.count ?? 0} permis à vérifier</a></div>
+            <div className="panel-head"><div><h2>Demandes récentes</h2><p>Les cinq dernières demandes reçues</p></div><Link className="link-button" href="/school/documents">{pendingPermits.count ?? 0} permis à vérifier</Link></div>
             <div className="request-list">
               {requests.length === 0 ? <p className="empty-state">Aucune demande pour le moment.</p> : requests.map((request) => {
                 const student = request.student;
