@@ -19,7 +19,7 @@ type Payment = { invoice_id:string|null; amount:number };
 type Contract = { contract_number:string; contract_date:string|null; contract_amount:number; currency:string; status:string; contract_file_path:string|null };
 
 function date(value:string|null|undefined) {
-  return value ? new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"long",year:"numeric",timeZone:"America/Toronto"}).format(new Date(value)) : "—";
+  return value ? new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"long",year:"numeric",timeZone:"America/Toronto"}).format(new Date(/^\\d{4}-\\d{2}-\\d{2}$/.test(value)?value+"T12:00:00Z":value)) : "—";
 }
 function dateTime(value:string) {
   return new Intl.DateTimeFormat("fr-CA",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",timeZone:"America/Toronto"}).format(new Date(value));
