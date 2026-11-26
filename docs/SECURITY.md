@@ -1,31 +1,39 @@
-# Security and tenant isolation — V1
+# ConduiPRO — sécurité et isolation multi-écoles
 
-## Roles
-- School roles: owner, admin, employee, instructor.
-- Students are separate profiles linked through students.user_id.
-- School and student login destinations are separated by account_type and application routing; database policies remain the security boundary.
+## Modèle d'identité
+- Les opérateurs de la plateforme sont inscrits dans `public.platform_admins`.
+- Chaque école possède un seul rôle opérationnel : `owner`.
+- Les élèves sont des profils séparés, liés à `students.user_id`.
+- Aucun rôle Employé ou Instructeur n'est autorisé dans `school_members`. Le nom du moniteur est une donnée de planification, pas un compte utilisateur.
 
-## Tenant helper functions
-- is_school_member(school_id): active school membership.
-- has_school_role(school_id, roles): active membership plus role check.
-- current_student_id(): student's linked student record.
+## Frontières d'autorisation
+- Les routes `/admin`, `/school` et `/student` sont protégées par middleware serveur.
+- L'administrateur de plateforme provisionne les écoles via une route serveur qui utilise la clé Supabase uniquement côté serveur.
+- Un propriétaire ne peut lire ou modifier que les données de son école.
+- Un élève peut lire uniquement son dossier et ses données pédagogiques, demandes, permis, contrat et solde.
+- Les écritures de progression, changements de phase, décisions sur les demandes, revues de permis, contrats et paiements sont soumises à des contrôles serveur et aux politiques RLS.
+- Les documents sont conservés dans le bucket privé `student-documents`, avec un chemin par école et élève et des URL signées de courte durée.
 
-## Policy intent
-- School staff: only their tenant's data.
-- Students: only self read for student-facing records.
-- Finance: owner/admin/employee only.
-- Student progress: school staff writes; students read.
-- Student requests: students create/read own; school staff process.
-- Documents and licenses: school staff manage/review; students read own records.
-- Messages: school staff in tenant; linked student reads conversation messages.
-- Audit logs: tenant reads, trusted server-side writes.
+## Fonctions SQL internes
+Les helpers RLS `private.is_school_member`, `private.has_school_role` et `private.current_student_id` sont placés dans le schéma non exposé `private`. Les anciennes fonctions publiques ne sont plus exécutables par les clients authentifiés ou anonymes.
 
-## Important implementation cautions
-1. This is a first security-policy draft and requires review/test before production.
-2. The schema currently allows school-wide staff policies that need more granular role rules (e.g. instructor scope) in a later refinement.
-3. Student profile provisioning and password setup must happen through a trusted server-side function using Supabase Auth Admin; never expose service role keys in browser.
-4. The initial student password design (contract number-derived) is not safe as a permanent password. Use a one-time temporary credential and require password change.
-5. The request INSERT policy requires careful SQL qualification to avoid ambiguity and should be tested/fixed in the migration validation pass.
-6. Student self-service updates should be restricted to safe fields via RPC or column-level permissions; avoid direct unrestricted profile/student table updates.
-7. Storage bucket policies are not yet included; create private buckets and tenant/student-scoped policies in a separate migration.
-8. Before running these migrations against the Supabase project, validate syntax and test access scenarios with separate school and student accounts.
+Les fonctions métier de traitement des demandes et de vérification des permis contrôlent explicitement le rôle `owner`. Les fonctions financières utilisent `SECURITY INVOKER`, de sorte que les mêmes privilèges et politiques RLS que le propriétaire s'appliquent.
+
+## Provisionnement des comptes
+- Le mot de passe temporaire d'un propriétaire est généré côté serveur et affiché une seule fois après la création de l'école.
+- Le compte élève est créé automatiquement avec le code école et le numéro de contrat comme identifiants métier.
+- Le mot de passe initial élève suit la règle définie dans le cahier des charges et doit être changé à la première connexion.
+- Les routes de bootstrap historiques qui créaient des comptes Employé/Instructeur sont désactivées.
+- Ne jamais transmettre `SUPABASE_SECRET_KEY` au navigateur ou au dépôt Git.
+
+## Finance
+- Un seul contrat actif par élève et école.
+- La sauvegarde du contrat crée ou met à jour la facture correspondante.
+- Les paiements verrouillent la facture, vérifient le solde restant et refusent un paiement supérieur au montant dû.
+- Le solde élève est calculé à partir des factures ouvertes et des paiements enregistrés.
+
+## État et limites connues
+- Le test de démonstration confirme les portées propriétaire/élève dans le même établissement.
+- Les tests multi-écoles complets (école A contre école B) et les essais de navigation réels sur les écrans de production restent à compléter.
+- Supabase signale encore la protection des mots de passe compromis comme désactivée. L'activation se configure dans Authentication > Password security et dépend du plan Supabase.
+- Les avis d'information RLS sur les tables internes `conduipro_bootstrap_guard` et `instructor_student_assignments` reflètent des tables sans accès client ; elles ne sont pas exposées aux comptes de l'application.
