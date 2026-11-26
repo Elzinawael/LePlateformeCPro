@@ -90,7 +90,7 @@ export default async function SchoolPortal() {
   const schoolId = membership.school_id;
   const [{ data: school }, studentCount, theoryCount, practicalCount, pendingRequests, pendingPermits, requestResult, theoryResult, practicalResult] =
     await Promise.all([
-      supabase.from("schools").select("name").eq("id", schoolId).maybeSingle(),
+      supabase.from("schools").select("name,school_code").eq("id", schoolId).maybeSingle(),
       supabase.from("students").select("id", { count: "exact", head: true }).eq("school_id", schoolId).eq("status", "active"),
       supabase.from("theory_courses").select("id", { count: "exact", head: true }).eq("school_id", schoolId).eq("status", "scheduled"),
       supabase.from("student_practical_progress").select("id", { count: "exact", head: true }).eq("school_id", schoolId).eq("status", "scheduled"),
@@ -142,19 +142,19 @@ export default async function SchoolPortal() {
         </div>
         <div className="school-switch">
           <div className="school-avatar">{schoolName.slice(0, 2).toUpperCase()}</div>
-          <div><strong>{schoolName}</strong><small>Portail établissement</small></div>
+          <div><strong>{schoolName}</strong><small>Code école : {school?.school_code ?? "—"}</small></div>
         </div>
         <div className="nav-label">ESPACE ÉCOLE</div>
         <nav>
           <a className="active" href="#overview"><span className="nav-icon">◫</span>Vue d&apos;ensemble</a>
           <Link href="/school/requests"><Clock3 size={18} /> Demandes</Link>
-          <Link href="/school/instructors"><Users size={18} /> Affectations</Link>
+          
           <Link href="/school/students"><Users size={18} /> Élèves</Link>
         </nav>
         <div className="nav-label spaced">FORMATION</div>
         <nav>
           <Link href="/school/courses"><BookOpen size={18} /> Séances théoriques</Link>
-          <a href="#schedule"><CarFront size={18} /> Leçons pratiques</a>
+          <Link href="/school/practical"><CarFront size={18} /> Leçons pratiques</Link>
           <Link href="/school/documents"><FileCheck2 size={18} /> Documents à vérifier</Link>
         </nav>
         <div className="sidebar-bottom">
@@ -164,7 +164,7 @@ export default async function SchoolPortal() {
           </div>
           <div className="user-row">
             <div className="user-avatar">{(profile?.first_name?.[0] || "C") + (profile?.last_name?.[0] || "P")}</div>
-            <div><strong>{[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Compte école"}</strong><small>{membership.role}</small></div>
+            <div><strong>{[profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Compte école"}</strong><small>Propriétaire</small></div>
             <form action={signOut}><button className="dots" type="submit" aria-label="Se déconnecter">↪</button></form>
           </div>
         </div>
