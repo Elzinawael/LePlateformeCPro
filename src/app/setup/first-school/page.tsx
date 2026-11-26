@@ -81,14 +81,14 @@ export default function FirstSchoolSetupPage() {
         <>
           <div className="login-heading">
             <h1>Créer le jeu de comptes de test</h1>
-            <p>Cette opération crée une école, un propriétaire, un administrateur, un employé, un instructeur et un élève. Elle ne peut être exécutée qu'une seule fois.</p>
+            <p>Cette opération crée une école, un propriétaire, un administrateur, un employé, un instructeur et un élève. Elle ne peut être exécutée qu&apos;une seule fois.</p>
           </div>
           <div className="first-school-security"><ShieldCheck size={17}/><span>Les comptes de test seront créés avec des mots de passe temporaires uniques, affichés une seule fois après la création. La clé administrative Supabase reste sur le serveur.</span></div>
           <form onSubmit={submit} className="first-school-form">
-            <label htmlFor="bootstrap-token">Code d'initialisation Hostinger</label>
+            <label htmlFor="bootstrap-token">Code d&apos;initialisation Hostinger</label>
             <div className="login-input"><KeyRound size={17}/><input id="bootstrap-token" type="password" required autoComplete="off" value={token} onChange={e=>setToken(e.target.value)} placeholder="Code configuré dans Hostinger"/></div>
 
-            <label htmlFor="school-name">Nom de l'école de test</label>
+            <label htmlFor="school-name">Nom de l&apos;école de test</label>
             <div className="login-input"><School size={17}/><input id="school-name" required maxLength={160} value={schoolName} onChange={e=>setSchoolName(e.target.value)}/></div>
 
             <div className="first-school-name-grid">
@@ -117,7 +117,7 @@ export default function FirstSchoolSetupPage() {
               <div className="bootstrap-password-row"><code>{account.password}</code><button type="button" onClick={()=>copy(account.email+"\n"+account.password,account.role)} aria-label={"Copier les identifiants "+account.label}>{copied===account.role?<Check size={16}/>:<Copy size={16}/>}</button></div>
             </article>)}
           </div>
-          <div className="first-school-security"><ShieldCheck size={17}/><span>Élève de démonstration : contrat DEMO-2026-001, phase 2, cinq modules de phase 1 complétés, une demande théorique, une demande pratique et une sortie assignée à l'instructeur.</span></div>
+          <div className="first-school-security"><ShieldCheck size={17}/><span>Élève de démonstration : contrat DEMO-2026-001, phase 2, cinq modules de phase 1 complétés, une demande théorique, une demande pratique et une sortie assignée à l&apos;instructeur.</span></div>
           <Link className="login-submit bootstrap-login-link" href="/login">Ouvrir la connexion ConduiPRO</Link>
         </>
       }
