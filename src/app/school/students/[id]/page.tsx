@@ -25,7 +25,8 @@ function statusLabel(value:string){
 }
 function formatDate(value:string|null){
  if(!value) return "—";
- return new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"long",year:"numeric",timeZone:"America/Toronto"}).format(new Date(value));
+ const normalized=/^\\d{4}-\\d{2}-\\d{2}$/.test(value)?value+"T12:00:00Z":value;
+ return new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"long",year:"numeric",timeZone:"America/Toronto"}).format(new Date(normalized));
 }
 
 export default async function StudentRecordPage({
