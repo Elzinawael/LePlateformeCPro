@@ -42,15 +42,13 @@ export default async function CoursesPage({searchParams}:{searchParams:Promise<{
  ]);
  const phases=[...(schoolPhases??[]),...(globalPhases??[])];
  const phaseIds=[...new Set(phases.map((p)=>p.id))];
- const [{data:rawModules},{data:rawModuleData}]=phaseIds.length?await Promise.all([
-  supabase.from("curriculum_modules").select("id,name,module_number,phase_id,is_active").in("phase_id",phaseIds).eq("is_active",true).order("module_number"),
-  supabase.from("curriculum_modules").select("id,name,module_number,phase_id").in("phase_id",phaseIds).eq("is_active",true).order("module_number")
- ]):[{data:[]},{data:[]}];
+ const {data:rawModules}=phaseIds.length
+  ?await supabase.from("curriculum_modules").select("id,name,module_number,phase_id,is_active").in("phase_id",phaseIds).eq("is_active",true).order("module_number")
+  :{data:[]};
  const selectedModules=(rawModules??[]).map(m=>{
   const phase=phases.find(p=>p.id===m.phase_id);
   return {id:m.id,name:m.name,module_number:m.module_number,phase_number:phase?.phase_number??0};
  }) as ModuleRow[];
- const moduleData=(rawModuleData??[]);
  const sessions=(courses??[]) as unknown as CourseRow[];
  const counts=new Map<string,number>();
  (enrollments??[]).forEach(e=>counts.set(e.course_id,(counts.get(e.course_id)??0)+1));
