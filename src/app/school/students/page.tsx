@@ -2,6 +2,7 @@ import { ArrowLeft, CarFront, Search, UserPlus, Users } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createStudent } from "@/app/actions/school";
+import { inviteStudent } from "@/app/actions/invitations";
 
 export const dynamic="force-dynamic";
 
@@ -24,7 +25,12 @@ const notices:Record<string,string>={
   "contract-exists":"Ce numéro de contrat existe déjà dans votre établissement.",
   "student-invalid":"Vérifiez le numéro de contrat et les coordonnées saisies.",
   "student-error":"La fiche n’a pas pu être créée. Vérifiez les informations et réessayez.",
-  "forbidden":"Votre rôle ne permet pas de créer un élève."
+  "forbidden":"Votre rôle ne permet pas de créer un élève.",
+  "invite-sent":"L’invitation a été envoyée par courriel et le compte est lié au dossier.",
+  "invite-error":"L’invitation n’a pas pu être envoyée. Vérifiez la configuration Auth et SMTP.",
+  "invite-config":"La clé serveur et l’URL publique doivent être configurées pour envoyer des invitations.",
+  "email-required":"Ajoutez une adresse courriel au dossier avant d’envoyer l’invitation.",
+  "already-invited":"Ce dossier est déjà associé à un compte.",
 };
 
 export default async function StudentsPage({searchParams}:{searchParams:Promise<{notice?:string}>}) {
@@ -96,7 +102,16 @@ export default async function StudentsPage({searchParams}:{searchParams:Promise<
             <td>{student.contract_number}</td>
             <td>{student.current_phase_id?phaseById.get(student.current_phase_id)??"Phase non définie":"À assigner"}</td>
             <td>{new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"short",year:"numeric",timeZone:"America/Toronto"}).format(new Date(student.enrollment_date))}</td>
-            <td><span className={student.user_id?"account-active":"account-pending"}>{student.user_id?"Activé":"À inviter"}</span></td>
+            <td>
+              {student.user_id
+                ? <span className="account-active">Activé</span>
+                : student.email && canManage
+                  ? <form action={inviteStudent} className="invite-student-form">
+                      <input type="hidden" name="student_id" value={student.id}/>
+                      <button type="submit">Envoyer l’invitation</button>
+                    </form>
+                  : <span className="account-pending">{student.email?"À inviter":"Courriel requis"}</span>}
+            </td>
             <td>{student.status==="active"?"Actif":student.status}</td>
           </tr>)}</tbody>
         </table></div>}
