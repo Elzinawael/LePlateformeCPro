@@ -14,9 +14,9 @@ export async function processCourseRequest(formData:FormData):Promise<void> {
   if(profileError||profile?.account_type!=="school") redirect("/login?error=school-access");
 
   const {data:membership,error:membershipError}=await supabase.from("school_members")
-    .select("school_id,role").eq("user_id",user.id).eq("status","active").limit(1).maybeSingle();
+    .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
   if(membershipError||!membership) redirect("/login?error=school-access");
-  if(!["owner","admin","employee"].includes(membership.role)) redirect("/school/requests?notice=forbidden");
+  if(membership.role!=="owner") redirect("/school/requests?notice=forbidden");
 
   const requestId=String(formData.get("request_id")??"").trim();
   const nextStatus=String(formData.get("status")??"");
