@@ -50,7 +50,7 @@ export default async function DocumentsPage({searchParams}:{searchParams:Promise
   .select("account_type").eq("id",user.id).maybeSingle();
  if(profileError||profile?.account_type!=="school") redirect("/login?error=school-access");
  const {data:membership,error:membershipError}=await supabase.from("school_members")
-  .select("school_id,role").eq("user_id",user.id).eq("status","active").limit(1).maybeSingle();
+  .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
  if(membershipError||!membership) redirect("/login?error=school-access");
  const canReview=["owner","admin","employee"].includes(membership.role);
 
