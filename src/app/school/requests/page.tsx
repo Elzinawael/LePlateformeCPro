@@ -62,7 +62,7 @@ export default async function RequestsPage({searchParams}:{searchParams:Promise<
   if(profileError||profile?.account_type!=="school") redirect("/login?error=school-access");
 
   const {data:membership,error:membershipError}=await supabase.from("school_members")
-    .select("school_id,role").eq("user_id",user.id).eq("status","active").limit(1).maybeSingle();
+    .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
   if(membershipError||!membership) redirect("/login?error=school-access");
 
   const [{data:school},{data:rows,error:requestsError}]=await Promise.all([
@@ -76,7 +76,7 @@ export default async function RequestsPage({searchParams}:{searchParams:Promise<
 
   const requests=(rows??[]) as unknown as RequestRow[];
   const pending=requests.filter(r=>["submitted","processing"].includes(r.status)).length;
-  const canManage=["owner","admin","employee"].includes(membership.role);
+  const canManage=membership.role==="owner";
   const notice=params.notice?notices[params.notice]:null;
 
   return <main className="requests-shell">
