@@ -1,4 +1,5 @@
 import { ArrowLeft, CarFront, Search, UserPlus, Users } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createStudent } from "@/app/actions/school";
@@ -98,7 +99,7 @@ export default async function StudentsPage({searchParams}:{searchParams:Promise<
         <div className="students-table-wrap"><table className="students-table">
           <thead><tr><th>Élève</th><th>Contrat</th><th>Phase</th><th>Inscription</th><th>Compte</th><th>Statut</th></tr></thead>
           <tbody>{students.map(student=><tr key={student.id}>
-            <td><a className="student-record-link" href={"/school/students/"+student.id}><strong>{student.first_name} {student.last_name}</strong><small>{student.email||student.phone||"Coordonnées non renseignées"}</small></a></td>
+            <td><Link className="student-record-link" href={"/school/students/"+student.id}><strong>{student.first_name} {student.last_name}</strong><small>{student.email||student.phone||"Coordonnées non renseignées"}</small></Link></td>
             <td>{student.contract_number}</td>
             <td>{student.current_phase_id?phaseById.get(student.current_phase_id)??"Phase non définie":"À assigner"}</td>
             <td>{new Intl.DateTimeFormat("fr-CA",{day:"numeric",month:"short",year:"numeric",timeZone:"America/Toronto"}).format(new Date(student.enrollment_date))}</td>
