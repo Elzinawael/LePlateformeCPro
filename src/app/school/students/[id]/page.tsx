@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { advanceStudentPhase,updateStudentModuleProgress } from "@/app/actions/progress";
+import { recordStudentPayment,saveStudentContract,updateStudentDetails,uploadStudentContract } from "@/app/actions/finance";
 
 export const dynamic="force-dynamic";
 
@@ -10,7 +11,10 @@ type Phase={id:string;phase_number:number;name:string;school_id:string|null};
 type Module={id:string;phase_id:string;module_number:number;name:string;duration_minutes:number;sort_order:number;is_active:boolean};
 type Lesson={id:string;phase_id:string;lesson_number:number;name:string;duration_minutes:number;sort_order:number;is_active:boolean};
 type ModuleProgress={id:string;module_id:string;status:string;completed_at:string|null;notes:string|null};
-type PracticalProgress={id:string;lesson_id:string;status:string;scheduled_at:string|null;completed_at:string|null;notes:string|null};
+type PracticalProgress={id:string;lesson_id:string;status:string;scheduled_at:string|null;completed_at:string|null;notes:string|null;instructor_name:string|null};
+type ContractRow={id:string;contract_number:string;contract_date:string|null;contract_amount:number;currency:string;status:string;contract_file_path:string|null};
+type InvoiceRow={id:string;invoice_number:string;issue_date:string;due_date:string|null;total_amount:number;status:string};
+type PaymentRow={id:string;invoice_id:string|null;amount:number;payment_method:string;payment_date:string;reference:string|null;notes:string|null};
 
 const notices:Record<string,string>={
  "progress-updated":"La progression théorique a été enregistrée.",
@@ -21,7 +25,24 @@ const notices:Record<string,string>={
  "phase-incomplete":"Tous les modules et toutes les sorties pratiques de la phase actuelle doivent être complétés.",
  "phase-error":"Le passage à la phase suivante n’a pas pu être effectué.",
  "phase-final":"L’élève est déjà dans la phase finale.",
- "phase-advanced":"L’élève a été transféré à la phase suivante."
+ "phase-advanced":"L’élève a été transféré à la phase suivante.",
+ "details-saved":"Les coordonnées de l’élève ont été mises à jour.",
+ "details-invalid":"Vérifiez le prénom, le nom et les coordonnées.",
+ "details-error":"Les coordonnées n’ont pas pu être mises à jour.",
+ "contract-saved":"Le contrat et sa facture ont été enregistrés.",
+ "contract-invalid":"Saisissez un montant de contrat positif et des dates valides.",
+ "contract-error":"Le contrat n’a pas pu être enregistré.",
+ "contract-paid-conflict":"Le montant du contrat ne peut pas être inférieur aux paiements déjà enregistrés.",
+ "contract-required":"Enregistrez d’abord le contrat avant de déposer son PDF.",
+ "contract-file-invalid":"Sélectionnez un PDF valide de 10 Mo maximum.",
+ "contract-file-type":"Le contrat doit être au format PDF.",
+ "contract-upload-error":"Le dépôt du contrat a échoué.",
+ "contract-file-saved":"Le contrat PDF est maintenant accessible à l’élève.",
+ "payment-saved":"Le paiement a été enregistré et le solde recalculé.",
+ "payment-invalid":"Vérifiez le montant, la date et le mode de paiement.",
+ "payment-too-large":"Le paiement dépasse le solde restant de la facture.",
+ "payment-error":"Le paiement n’a pas pu être enregistré.",
+ "invoice-not-found":"La facture sélectionnée est introuvable."
 };
 function statusLabel(value:string){
  if(value==="completed") return "Complété";
@@ -51,11 +72,14 @@ export default async function StudentRecordPage({
  if(membershipError||!membership) redirect("/login?error=school-access");
  if(!["owner","admin","employee"].includes(membership.role)) redirect("/school/instructor");
 
- const [{data:school},{data:student,error:studentError},{data:schoolPhases},{data:globalPhases}]=await Promise.all([
+ const [{data:school},{data:student,error:studentError},{data:schoolPhases},{data:globalPhases},{data:contract},{data:invoiceRows},{data:paymentRows}]=await Promise.all([
   supabase.from("schools").select("name").eq("id",membership.school_id).maybeSingle(),
   supabase.from("students").select("id,first_name,last_name,contract_number,email,phone,date_of_birth,enrollment_date,status,current_phase_id,current_phase_started_at,user_id").eq("id",studentId).eq("school_id",membership.school_id).maybeSingle(),
   supabase.from("curriculum_phases").select("id,phase_number,name,school_id").eq("school_id",membership.school_id).order("phase_number"),
-  supabase.from("curriculum_phases").select("id,phase_number,name,school_id").is("school_id",null).order("phase_number")
+  supabase.from("curriculum_phases").select("id,phase_number,name,school_id").is("school_id",null).order("phase_number"),
+  supabase.from("student_contracts").select("id,contract_number,contract_date,contract_amount,currency,status,contract_file_path").eq("student_id",studentId).eq("school_id",membership.school_id).eq("status","active").order("created_at",{ascending:false}).limit(1).maybeSingle(),
+  supabase.from("invoices").select("id,invoice_number,issue_date,due_date,total_amount,status").eq("student_id",studentId).eq("school_id",membership.school_id).order("issue_date",{ascending:false}),
+  supabase.from("payments").select("id,invoice_id,amount,payment_method,payment_date,reference,notes").eq("student_id",studentId).eq("school_id",membership.school_id).order("payment_date",{ascending:false})
  ]);
  if(studentError||!student) redirect("/school/students?notice=student-not-found");
 
@@ -70,7 +94,7 @@ export default async function StudentRecordPage({
   supabase.from("curriculum_modules").select("id,phase_id,module_number,name,duration_minutes,sort_order,is_active").in("phase_id",phaseIds).eq("is_active",true).order("sort_order"),
   supabase.from("practical_lessons").select("id,phase_id,lesson_number,name,duration_minutes,sort_order,is_active").in("phase_id",phaseIds).eq("is_active",true).order("sort_order"),
   supabase.from("student_module_progress").select("id,module_id,status,completed_at,notes").eq("student_id",studentId).eq("school_id",membership.school_id),
-  supabase.from("student_practical_progress").select("id,lesson_id,status,scheduled_at,completed_at,notes").eq("student_id",studentId).eq("school_id",membership.school_id)
+  supabase.from("student_practical_progress").select("id,lesson_id,status,scheduled_at,completed_at,notes,instructor_name").eq("student_id",studentId).eq("school_id",membership.school_id)
  ]):[{data:[]},{data:[]},{data:[]},{data:[]}];
 
  const modules=(moduleData??[]) as Module[];
@@ -94,6 +118,23 @@ export default async function StudentRecordPage({
  const phaseStarted=student.current_phase_started_at?new Date(student.current_phase_started_at).getTime():Date.now();
  const daysRemaining=Math.max(0,Math.ceil((phaseStarted+minimumDays*86400000-Date.now())/86400000));
  const phaseCanAdvance=!!currentPhase&&!!nextPhase&&remainingModules===0&&remainingLessons===0&&daysRemaining===0;
+ const contracts=(contract?[contract]:[]) as ContractRow[];
+ const activeContract=contracts[0]??null;
+ const invoices=(invoiceRows??[]) as InvoiceRow[];
+ const payments=(paymentRows??[]) as PaymentRow[];
+ const paidByInvoice=new Map<string,number>();
+ payments.forEach(payment=>{if(payment.invoice_id)paidByInvoice.set(payment.invoice_id,(paidByInvoice.get(payment.invoice_id)??0)+Number(payment.amount));});
+ const invoiceBalances=invoices.map(invoice=>({
+  ...invoice,
+  paid:paidByInvoice.get(invoice.id)??0,
+  remaining:Math.max(0,Number(invoice.total_amount)-(paidByInvoice.get(invoice.id)??0))
+ }));
+ const outstandingBalance=invoiceBalances.filter(invoice=>!["paid","cancelled","draft"].includes(invoice.status)).reduce((sum,invoice)=>sum+invoice.remaining,0);
+ let contractSignedUrl:string|null=null;
+ if(activeContract?.contract_file_path){
+  const {data}=await supabase.storage.from("student-documents").createSignedUrl(activeContract.contract_file_path,300);
+  contractSignedUrl=data?.signedUrl??null;
+ }
  const notice=noticeKey?notices[noticeKey]:null;
 
  return <main className="student-record-shell">
@@ -115,14 +156,50 @@ export default async function StudentRecordPage({
    </section>
    <section className="students-list-panel">
     <div className="panel-head"><div><h2>Informations du dossier</h2><p>Informations administratives de l’élève</p></div><UserRound size={18}/></div>
-    <div className="student-record-details">
-     <div><small>Numéro de contrat</small><strong>{student.contract_number}</strong></div>
-     <div><small>Date d’inscription</small><strong>{formatDate(student.enrollment_date)}</strong></div>
-     <div><small>Date de naissance</small><strong>{formatDate(student.date_of_birth)}</strong></div>
-     <div><small>Compte élève</small><strong>{student.user_id?"Compte associé":"Invitation à envoyer"}</strong></div>
-    </div>
+    <form action={updateStudentDetails} className="student-edit-form">
+     <input type="hidden" name="student_id" value={student.id}/>
+     <label>Prénom<input name="first_name" required maxLength={100} defaultValue={student.first_name}/></label>
+     <label>Nom<input name="last_name" required maxLength={100} defaultValue={student.last_name}/></label>
+     <label>Courriel de contact<input name="email" type="email" maxLength={254} defaultValue={student.email??""}/></label>
+     <label>Téléphone<input name="phone" type="tel" maxLength={40} defaultValue={student.phone??""}/></label>
+     <label>Date de naissance<input name="date_of_birth" type="date" defaultValue={student.date_of_birth??""}/></label>
+     <div className="student-edit-readonly"><small>Numéro de contrat / identifiant de connexion</small><strong>{student.contract_number}</strong><small>Inscription : {formatDate(student.enrollment_date)} · Compte : {student.user_id?"Actif":"Non lié"}</small></div>
+     <button type="submit">Enregistrer les coordonnées</button>
+    </form>
    </section>
 
+
+   <section className="students-list-panel finance-panel">
+    <div className="panel-head"><div><h2>Contrat et paiements</h2><p>Le contrat génère une facture et le solde est calculé automatiquement.</p></div><FileCheck2 size={18}/></div>
+    <form action={saveStudentContract} className="finance-contract-form">
+     <input type="hidden" name="student_id" value={student.id}/>
+     <label>Montant total du contrat (CAD)<input name="contract_amount" type="number" min="0.01" max="1000000" step="0.01" required defaultValue={activeContract?.contract_amount??""}/></label>
+     <label>Date du contrat<input name="contract_date" type="date" defaultValue={activeContract?.contract_date??""}/></label>
+     <label>Date d’échéance de la facture<input name="due_date" type="date" defaultValue={invoiceBalances[0]?.due_date??""}/></label>
+     <button type="submit">Enregistrer le contrat et la facture</button>
+    </form>
+    {activeContract?.contract_file_path&&contractSignedUrl&&<p className="contract-download"><a href={contractSignedUrl} target="_blank" rel="noreferrer">Consulter le contrat PDF</a></p>}
+    {activeContract&&<form action={uploadStudentContract} className="contract-upload-form">
+     <input type="hidden" name="student_id" value={student.id}/>
+     <label>Joindre ou remplacer le contrat signé (PDF)<input type="file" name="contract_file" accept="application/pdf" required/></label>
+     <button type="submit">Déposer le contrat PDF</button>
+    </form>}
+    <div className="finance-balance-row"><span>Solde restant total</span><strong>{new Intl.NumberFormat("fr-CA",{style:"currency",currency:"CAD"}).format(outstandingBalance)}</strong></div>
+    {invoices.length===0?<p className="empty-state">Aucune facture. Enregistrez le montant du contrat pour générer la première facture.</p>:
+     <div className="finance-invoice-list">{invoiceBalances.map(invoice=><article key={invoice.id}>
+      <div className="finance-invoice-heading"><strong>{invoice.invoice_number}</strong><span className={"account-"+(invoice.status==="paid"?"active":"pending")}>{invoice.status==="paid"?"Payée":invoice.status==="partially_paid"?"Partiellement payée":invoice.status==="overdue"?"En retard":invoice.status==="cancelled"?"Annulée":"À payer"}</span></div>
+      <div className="finance-invoice-values"><span>Facture : {new Intl.NumberFormat("fr-CA",{style:"currency",currency:"CAD"}).format(Number(invoice.total_amount))}</span><span>Payé : {new Intl.NumberFormat("fr-CA",{style:"currency",currency:"CAD"}).format(invoice.paid)}</span><strong>Reste : {new Intl.NumberFormat("fr-CA",{style:"currency",currency:"CAD"}).format(invoice.remaining)}</strong></div>
+      {invoice.remaining>0&&["issued","partially_paid","overdue"].includes(invoice.status)&&<form action={recordStudentPayment} className="finance-payment-form">
+       <input type="hidden" name="student_id" value={student.id}/><input type="hidden" name="invoice_id" value={invoice.id}/>
+       <label>Montant reçu<input name="amount" type="number" min="0.01" max={invoice.remaining} step="0.01" required/></label>
+       <label>Mode de paiement<select name="payment_method" defaultValue="debit"><option value="cash">Espèces</option><option value="debit">Débit</option><option value="credit">Crédit</option><option value="transfer">Virement</option><option value="other">Autre</option></select></label>
+       <label>Date du paiement<input name="payment_date" type="date" defaultValue={new Date().toISOString().slice(0,10)} required/></label>
+       <label>Référence (facultatif)<input name="reference" maxLength={120}/></label>
+       <button type="submit">Enregistrer le paiement</button>
+      </form>}
+     </article>)}</div>}
+    {payments.length>0&&<div className="finance-payment-history"><h3>Historique des paiements</h3>{payments.map(payment=><div key={payment.id}><span>{formatDate(payment.payment_date)} · {payment.payment_method==="cash"?"Espèces":payment.payment_method==="debit"?"Débit":payment.payment_method==="credit"?"Crédit":payment.payment_method==="transfer"?"Virement":"Autre"}</span><strong>{new Intl.NumberFormat("fr-CA",{style:"currency",currency:"CAD"}).format(Number(payment.amount))}</strong></div>)}</div>}
+   </section>
    <section className="students-list-panel phase-transition-panel">
     <div className="panel-head"><div><h2>Passage à la phase suivante</h2><p>Le passage respecte les durées minimales et les validations du programme SAAQ.</p></div><GraduationCap size={18}/></div>
     {currentPhase&&nextPhase?<div className="phase-transition-content">
@@ -133,7 +210,7 @@ export default async function StudentRecordPage({
    </section>
 
    <section className="students-list-panel">
-    <div className="panel-head"><div><h2>Suivi des modules théoriques</h2><p>Le personnel autorisé confirme les modules suivis et les évaluations.</p></div><BookOpen size={18}/></div>
+    <div className="panel-head"><div><h2>Suivi des modules théoriques</h2><p>L’école confirme les modules suivis et les évaluations.</p></div><BookOpen size={18}/></div>
     {phases.map(phase=>{
      const phaseModules=modules.filter(m=>m.phase_id===phase.id);
      return <div className="record-phase" key={phase.id}>
@@ -157,7 +234,7 @@ export default async function StudentRecordPage({
    </section>
 
    <section className="students-list-panel">
-    <div className="panel-head"><div><h2>Suivi des sorties pratiques</h2><p>L’instructeur affecté confirme les sorties ; l’école conserve la visibilité globale.</p></div><CarFront size={18}/></div>
+    <div className="panel-head"><div><h2>Suivi des sorties pratiques</h2><p>L’école planifie et valide les sorties pratiques.</p></div><CarFront size={18}/></div>
     {phases.map(phase=>{
      const phaseLessons=lessons.filter(l=>l.phase_id===phase.id);
      return <div className="record-phase" key={phase.id}>
@@ -167,7 +244,7 @@ export default async function StudentRecordPage({
        return <div className="record-practical-row" key={lesson.id}>
         <span className={progress?.status==="completed"?"check-done":"check-pending"}>{progress?.status==="completed"?<CheckCircle2 size={16}/>:lesson.lesson_number}</span>
         <span><strong>Sortie {lesson.lesson_number} · {lesson.name}</strong><small>{lesson.duration_minutes} min · {statusLabel(progress?.status??"not_started")}</small></span>
-        <small>{progress?.scheduled_at?formatDate(progress.scheduled_at):"Non planifiée"}</small>
+        <small>{progress?.scheduled_at?formatDate(progress.scheduled_at):"Non planifiée"}{progress?.instructor_name?" · "+progress.instructor_name:""}</small>
        </div>;
       })}
      </div>;
