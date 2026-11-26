@@ -1,6 +1,7 @@
 import { ArrowUpRight, BookOpen, CalendarDays, CarFront, CheckCircle2, Clock3, FileCheck2, FileText, Wallet } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { signOut } from "@/app/actions/auth";
 import { PracticalRequestForm, PermitUploadForm, TheoryRequestButton } from "./StudentForms";
 
@@ -11,7 +12,7 @@ type Module = { id:string; phase_id:string; module_number:number; name:string; d
 type Lesson = { id:string; phase_id:string; lesson_number:number; name:string; duration_minutes:number; sort_order:number; is_active:boolean };
 type Progress = { module_id:string; status:string };
 type PracticalProgress = { lesson_id:string; status:string };
-type Course = { id:string; title:string; module_id:string; start_at:string; end_at:string; location:string|null };
+type Course = { id:string; title:string; module_id:string; start_at:string; end_at:string; location:string|null; capacity:number };
 type Request = { id:string; request_type:string; status:string; created_at:string; school_response:string|null };
 type License = { id:string; license_number:string|null; expiry_date:string|null; verification_status:string; rejection_reason:string|null; document_path:string|null; created_at:string };
 type Invoice = { id:string; total_amount:number; status:string };
@@ -41,6 +42,8 @@ const notices:Record<string,string> = {
   "module-unavailable":"Ce module n’est pas disponible dans votre phase actuelle.",
   "module-completed":"Ce module est déjà complété.",
   "session-unavailable":"Cette séance n’est plus disponible.",
+  "session-full":"Cette séance est complète. Choisissez une autre séance.",
+  "request-already-pending":"Vous avez déjà une demande en attente pour cet élément.",
   "availability-invalid":"Décrivez vos disponibilités en 500 caractères maximum.",
   "phase-missing":"Votre école doit confirmer votre phase actuelle.",
   "permit-locked":"Le dépôt est accessible après la réussite des modules 1 à 5 de la phase 1.",
@@ -81,7 +84,7 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
     supabase.from("student_practical_progress").select("lesson_id,status").eq("student_id",student.id).eq("school_id",student.school_id),
     supabase.from("student_licenses").select("id,license_number,expiry_date,verification_status,rejection_reason,document_path,created_at").eq("student_id",student.id).eq("school_id",student.school_id).order("created_at",{ascending:false}).limit(1).maybeSingle(),
     supabase.from("course_requests").select("id,request_type,status,created_at,school_response").eq("student_id",student.id).order("created_at",{ascending:false}).limit(6),
-    supabase.from("theory_courses").select("id,title,module_id,start_at,end_at,location").eq("school_id",student.school_id).eq("status","scheduled").gte("start_at",new Date().toISOString()).order("start_at").limit(20)
+    supabase.from("theory_courses").select("id,title,module_id,start_at,end_at,location,capacity").eq("school_id",student.school_id).eq("status","scheduled").gte("start_at",new Date().toISOString()).order("start_at").limit(20)
   ]);
 
   const schoolName=schoolResult.data?.name??"Votre auto-école";
@@ -128,7 +131,23 @@ export default async function StudentPortal({ searchParams }:{searchParams:Promi
   const balance=invoices.reduce((sum,i)=>sum+Math.max(0,Number(i.total_amount)-(paidByInvoice.get(i.id)??0)),0);
 
   const activeModuleIds=new Set(currentModules.map(m=>m.id));
-  const upcomingCourses=courses.filter(c=>activeModuleIds.has(c.module_id)&&!completedModules.has(c.module_id)).slice(0,6);
+  let availableCourseIds=new Set<string>();
+  if(courses.length){
+    const admin=createSupabaseAdminClient();
+    const {data:enrollments}=await admin.from("theory_course_enrollments")
+      .select("course_id,student_id").eq("school_id",student.school_id)
+      .in("course_id",courses.map(course=>course.id)).eq("status","enrolled");
+    const enrolledCounts=new Map<string,number>();
+    const ownEnrollments=new Set<string>();
+    (enrollments??[]).forEach(enrollment=>{
+      enrolledCounts.set(enrollment.course_id,(enrolledCounts.get(enrollment.course_id)??0)+1);
+      if(enrollment.student_id===student.id)ownEnrollments.add(enrollment.course_id);
+    });
+    availableCourseIds=new Set(courses.filter(course=>
+      (enrolledCounts.get(course.id)??0)<course.capacity&&!ownEnrollments.has(course.id)
+    ).map(course=>course.id));
+  }
+  const upcomingCourses=courses.filter(c=>activeModuleIds.has(c.module_id)&&!completedModules.has(c.module_id)&&availableCourseIds.has(c.id)).slice(0,6);
   const phaseOne=phases.find(p=>p.phase_number===1);
   const phaseOneModuleNumbers=new Set(
     modules.filter(m=>m.phase_id===phaseOne?.id&&m.module_number>=1&&m.module_number<=5)
