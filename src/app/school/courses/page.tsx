@@ -30,7 +30,7 @@ export default async function CoursesPage({searchParams}:{searchParams:Promise<{
  if(authError||!user) redirect("/login");
  const {data:profile,error:profileError}=await supabase.from("profiles").select("account_type").eq("id",user.id).maybeSingle();
  if(profileError||profile?.account_type!=="school") redirect("/login?error=school-access");
- const {data:membership,error:membershipError}=await supabase.from("school_members").select("school_id,role").eq("user_id",user.id).eq("status","active").limit(1).maybeSingle();
+ const {data:membership,error:membershipError}=await supabase.from("school_members").select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
  if(membershipError||!membership) redirect("/login?error=school-access");
 
  const [{data:school},{data:schoolPhases},{data:globalPhases},{data:courses},{data:enrollments}] = await Promise.all([
@@ -56,7 +56,7 @@ export default async function CoursesPage({searchParams}:{searchParams:Promise<{
  const sessions=(courses??[]) as unknown as CourseRow[];
  const counts=new Map<string,number>();
  (enrollments??[]).forEach(e=>counts.set(e.course_id,(counts.get(e.course_id)??0)+1));
- const canManage=["owner","admin","employee"].includes(membership.role);
+ const canManage=membership.role==="owner";
  const notice=params.notice?notices[params.notice]:null;
  const now=Date.now();
  const upcoming=sessions.filter(s=>s.status==="scheduled"&&new Date(s.start_at).getTime()>now);
