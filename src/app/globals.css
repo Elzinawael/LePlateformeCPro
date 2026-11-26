@@ -189,3 +189,30 @@
 .staff-invite-form button{grid-column:1/-1;justify-self:start;border:0;cursor:pointer}
 @media(max-width:760px){.staff-invite-form{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.staff-invite-form{grid-template-columns:1fr}}
+
+/* Private learner permit review */
+.documents-shell{min-height:100vh;background:#f6f8fb;color:#1b2740}
+.documents-content{max-width:1080px;margin:0 auto;padding:34px 28px 20px}
+.permit-review-list,.permit-history-list{display:grid}
+.permit-review-list>article{padding:16px 0;border-top:1px solid #eef1f5}
+.permit-review-heading{display:flex;align-items:center;gap:10px}
+.permit-review-heading>span:nth-child(2){display:grid;gap:4px;flex:1}
+.permit-review-heading strong{font-size:12px;color:#263550}
+.permit-review-heading small{font-size:9px;color:#8995a8}
+.permit-review-meta{display:flex;flex-wrap:wrap;gap:18px;margin:13px 0;font-size:10px;color:#7b879a}
+.permit-review-meta b{color:#33435f}
+.permit-open-link{display:inline-flex;gap:7px;align-items:center;padding:9px 11px;background:#f1f5ff;color:#3e65bd;border-radius:8px;font-size:10px;font-weight:700;text-decoration:none}
+.permit-open-link span{font-size:9px;font-weight:400;color:#8492ae}
+.permit-open-error{font-size:10px;color:#b75c53}
+.permit-review-form{display:grid;gap:9px;margin-top:14px}
+.permit-review-form label{display:grid;gap:6px;font-size:10px;font-weight:700;color:#59677e}
+.permit-review-form textarea{width:100%;box-sizing:border-box;border:1px solid #e2e8f1;border-radius:8px;padding:9px 10px;font:11px 'DM Sans',sans-serif;resize:vertical}
+.permit-review-form>div{display:flex;flex-wrap:wrap;gap:8px}
+.permit-review-form button{display:inline-flex;align-items:center;gap:6px;border:1px solid #cfe5d8;background:#eef8f2;color:#367d59;border-radius:8px;padding:8px 11px;font-size:10px;font-weight:700;cursor:pointer}
+.permit-review-form button:last-child{border-color:#f0d8d5;background:#fff4f2;color:#a8564e}
+.permit-history-list>article{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #eef1f5}
+.permit-history-list>article>div{display:grid;gap:4px;flex:1}
+.permit-history-list strong{font-size:11px;color:#263550}
+.permit-history-list small{font-size:9px;color:#8995a8}
+.permit-history-list a{font-size:9px;color:#426bd1;text-decoration:none;white-space:nowrap}
+@media(max-width:760px){.documents-content{padding:24px 14px}.permit-review-heading{align-items:flex-start}.permit-history-list>article{align-items:flex-start;flex-wrap:wrap}.permit-review-form>div{flex-direction:column;align-items:stretch}}
