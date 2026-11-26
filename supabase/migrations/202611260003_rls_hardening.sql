@@ -129,6 +129,7 @@ for insert to authenticated with check (
       and s.user_id = auth.uid()
   )
 );
+drop policy if exists course_requests_student_select on public.course_requests;
 create policy course_requests_student_select on public.course_requests
 for select to authenticated using (student_id=public.current_student_id());
 
