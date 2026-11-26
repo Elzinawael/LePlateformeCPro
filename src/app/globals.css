@@ -262,3 +262,14 @@
 .phase-transition-checks span{padding:6px 9px;border-radius:7px;background:#f5f7fb;color:#68778f;font-size:9px}
 .phase-transition-content form button{border:0;border-radius:8px;background:#426bd1;color:#fff;padding:9px 13px;font-size:10px;font-weight:700;cursor:pointer}
 @media(max-width:600px){.phase-transition-checks{flex-direction:column;align-items:flex-start}}
+
+.first-school-card{max-width:720px!important}
+.first-school-security{display:flex;gap:9px;align-items:flex-start;padding:12px;border-radius:10px;background:#f1f6ff;color:#486497;font-size:10px;line-height:1.55;margin:10px 0 18px}
+.first-school-security svg{flex-shrink:0}
+.first-school-form{display:grid;gap:9px}
+.first-school-form>label,.first-school-name-grid label{font-size:10px;font-weight:700;color:#59677e}
+.first-school-form .login-input{margin-bottom:5px}
+.first-school-name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.first-school-name-grid>div{display:grid;gap:8px}
+.first-school-form .login-submit{margin-top:8px}
+@media(max-width:560px){.first-school-card{padding:24px 18px!important}.first-school-name-grid{grid-template-columns:1fr}}
