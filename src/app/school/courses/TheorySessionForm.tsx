@@ -9,7 +9,7 @@ export function TheorySessionForm({modules}:{modules:ModuleOption[]}) {
   const [timezoneOffset,setTimezoneOffset]=useState<number|null>(null);
   useEffect(()=>setTimezoneOffset(new Date().getTimezoneOffset()),[]);
   return <form action={createTheorySession} className="theory-create-form">
-    <input type="hidden" name="timezone_offset" value={timezoneOffset}/>
+    <input type="hidden" name="timezone_offset" value={timezoneOffset??""}/>
     <label>Module du programme
       <select name="module_id" required defaultValue="">
         <option value="" disabled>Choisir un module</option>
