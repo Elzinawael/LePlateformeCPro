@@ -174,11 +174,43 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
   const licenseNumber = String(formData.get("license_number") ?? "").trim();
   const expiryDate = String(formData.get("expiry_date") ?? "").trim();
   if (licenseNumber.length > 64) redirect("/student?notice=permit-details-invalid");
+  if (expiryDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(expiryDate)
+    || Number.isNaN(Date.parse(expiryDate + "T00:00:00Z")))) {
+    redirect("/student?notice=permit-details-invalid");
+  }
+
+  const { data: pendingLicense, error: pendingError } = await supabase
+    .from("student_licenses")
+    .select("id")
+    .eq("student_id", student.id)
+    .eq("verification_status", "pending")
+    .limit(1)
+    .maybeSingle();
+  if (pendingError) redirect("/student?notice=permit-record-error");
+  if (pendingLicense) redirect("/student?notice=permit-pending");
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const isPdf = bytes.length >= 5
+    && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44
+    && bytes[3] === 0x46 && bytes[4] === 0x2d;
+  const isJpeg = bytes.length >= 3
+    && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const isPng = bytes.length >= 8
+    && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e
+    && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a
+    && bytes[6] === 0x1a && bytes[7] === 0x0a;
+  if (
+    (file.type === "application/pdf" && !isPdf)
+    || (file.type === "image/jpeg" && !isJpeg)
+    || (file.type === "image/png" && !isPng)
+  ) {
+    redirect("/student?notice=file-type");
+  }
 
   const path = student.school_id + "/" + student.id + "/" + randomUUID() + "." + extension;
   const { error: uploadError } = await supabase.storage
     .from("student-documents")
-    .upload(path, new Uint8Array(await file.arrayBuffer()), {
+    .upload(path, bytes, {
       contentType: file.type,
       cacheControl: "3600",
       upsert: false,
@@ -186,7 +218,30 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
 
   if (uploadError) redirect("/student?notice=upload-error");
 
-  const { error: recordError } = await supabase.from("student_licenses").insert({
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    await supabase.storage.from("student-documents").remove([path]);
+    redirect("/login");
+  }
+
+  const { error: documentError } = await supabase.from("student_documents").insert({
+    school_id: student.school_id,
+    student_id: student.id,
+    document_type: "learner_permit",
+    file_name: "permis-apprenti." + extension,
+    storage_path: path,
+    mime_type: file.type,
+    file_size: file.size,
+    status: "pending",
+    uploaded_by: user.id,
+  });
+
+  if (documentError) {
+    await supabase.storage.from("student-documents").remove([path]);
+    redirect("/student?notice=permit-record-error");
+  }
+
+  const { error: licenseError } = await supabase.from("student_licenses").insert({
     school_id: student.school_id,
     student_id: student.id,
     license_number: licenseNumber || null,
@@ -195,7 +250,12 @@ export async function uploadLearnerPermit(formData: FormData): Promise<void> {
     verification_status: "pending",
   });
 
-  if (recordError) redirect("/student?notice=permit-record-error");
+  if (licenseError) {
+    await supabase.from("student_documents").delete()
+      .eq("student_id", student.id).eq("storage_path", path);
+    await supabase.storage.from("student-documents").remove([path]);
+    redirect("/student?notice=permit-record-error");
+  }
 
   revalidatePath("/student");
   redirect("/student?notice=permit-uploaded");
