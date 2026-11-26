@@ -67,7 +67,7 @@ export async function inviteStaffMember(formData:FormData):Promise<void> {
     school_id:membership.school_id,
     user_id:invitedUser.id,
     role,
-    status:"active"
+    status:"invited"
   });
   if(memberError) {
     await admin.from("profiles").delete().eq("id",invitedUser.id);
