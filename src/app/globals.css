@@ -79,3 +79,6 @@
 .students-admin-content .portal-footer{margin-top:28px}
 @media(max-width:760px){.students-admin-header{padding:0 18px}.students-head-right>span{display:none}.students-admin-content{padding:24px 14px}.students-create-form{grid-template-columns:1fr 1fr}.students-page-heading h1{font-size:25px}}
 @media(max-width:480px){.students-create-form{grid-template-columns:1fr}.students-create-submit{align-items:flex-start;flex-direction:column}.students-total{padding:10px}}
+
+.invite-student-form button{border:1px solid #dce6f7;background:#f4f7ff;color:#3866c6;border-radius:7px;padding:6px 9px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
+.invite-student-form button:hover{background:#eaf0ff}
