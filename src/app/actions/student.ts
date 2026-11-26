@@ -49,7 +49,7 @@ export async function createCourseRequest(formData: FormData): Promise<void> {
   if (!student.current_phase_id) redirect("/student?notice=phase-missing");
 
   if (requestType === "theory") {
-    if (!moduleId) redirect("/student?notice=request-invalid");
+    if (!moduleId || !preferredCourseId) redirect("/student?notice=request-invalid");
 
     const { data: module, error: moduleError } = await supabase
       .from("curriculum_modules")
@@ -72,20 +72,34 @@ export async function createCourseRequest(formData: FormData): Promise<void> {
       redirect("/student?notice=module-completed");
     }
 
-    let courseId: string | null = null;
-    if (preferredCourseId) {
-      const { data: course, error: courseError } = await supabase
-        .from("theory_courses")
-        .select("id")
-        .eq("id", preferredCourseId)
-        .eq("school_id", student.school_id)
-        .eq("module_id", moduleId)
-        .eq("status", "scheduled")
-        .maybeSingle();
+    const { data: course, error: courseError } = await supabase
+      .from("theory_courses")
+      .select("id,capacity,start_at")
+      .eq("id", preferredCourseId)
+      .eq("school_id", student.school_id)
+      .eq("module_id", moduleId)
+      .eq("status", "scheduled")
+      .gt("start_at", new Date().toISOString())
+      .maybeSingle();
 
-      if (courseError || !course) redirect("/student?notice=session-unavailable");
-      courseId = course.id;
+    if (courseError || !course) redirect("/student?notice=session-unavailable");
+
+    const { count: enrolledCount, error: enrollmentError } = await supabase
+      .from("theory_course_enrollments")
+      .select("id", { count: "exact", head: true })
+      .eq("course_id", course.id)
+      .eq("status", "enrolled");
+    if (enrollmentError || (enrolledCount ?? 0) >= course.capacity) {
+      redirect("/student?notice=session-full");
     }
+
+    const { data: existing, error: existingError } = await supabase.from("course_requests")
+      .select("id").eq("student_id", student.id).eq("request_type", "theory")
+      .eq("module_id", moduleId).in("status", ["submitted", "processing"]).limit(1).maybeSingle();
+    if (existingError) redirect("/student?notice=request-error");
+    if (existing) redirect("/student?notice=request-already-pending");
+
+    const courseId = course.id;
 
     const { error } = await supabase.from("course_requests").insert({
       school_id: student.school_id,
@@ -101,6 +115,12 @@ export async function createCourseRequest(formData: FormData): Promise<void> {
     if (!availabilityText || availabilityText.length > 500) {
       redirect("/student?notice=availability-invalid");
     }
+
+    const { data: existing, error: existingError } = await supabase.from("course_requests")
+      .select("id").eq("student_id", student.id).eq("request_type", "practical")
+      .in("status", ["submitted", "processing"]).limit(1).maybeSingle();
+    if (existingError) redirect("/student?notice=request-error");
+    if (existing) redirect("/student?notice=request-already-pending");
 
     const { error } = await supabase.from("course_requests").insert({
       school_id: student.school_id,
