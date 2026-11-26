@@ -20,5 +20,5 @@ export async function GET(request:NextRequest) {
     return NextResponse.redirect(new URL("/login?error=invite-confirmation",request.url));
   }
 
-  return NextResponse.redirect(new URL(destination,request.url));
+  return NextResponse.redirect(new URL("/auth/set-password?next="+encodeURIComponent(destination),request.url));
 }
