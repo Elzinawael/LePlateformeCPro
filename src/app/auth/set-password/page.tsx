@@ -41,12 +41,15 @@ export default function SetPasswordPage() {
       const supabase=createSupabaseBrowserClient();
       const {error:updateError}=await supabase.auth.updateUser({password});
       if(updateError) throw updateError;
+      const finish=await fetch("/api/auth/finish-password-change",{method:"POST",cache:"no-store"});
+      const finishResult=await finish.json();
+      if(!finish.ok) throw new Error(finishResult.message??"Impossible de finaliser le changement du mot de passe.");
       const {data:{user},error:userError}=await supabase.auth.getUser();
-      if(userError||!user) throw new Error("La session n’est plus valide. Recommencez depuis votre courriel.");
-      const {data:profile,error:profileError}=await supabase.from("profiles")
-        .select("account_type").eq("id",user.id).maybeSingle();
+      if(userError||!user) throw new Error("La session n’est plus valide. Reconnectez-vous.");
+      const {data:profile,error:profileError}=await supabase.from("profiles").select("account_type").eq("id",user.id).maybeSingle();
       if(profileError) throw profileError;
-      const fallback=profile?.account_type==="school"?"/school":"/student";
+      const {data:platformAdmin}=await supabase.from("platform_admins").select("user_id").eq("user_id",user.id).maybeSingle();
+      const fallback=platformAdmin?"/admin":profile?.account_type==="school"?"/school":"/student";
       const next=new URLSearchParams(window.location.search).get("next");
       const destination=next?.startsWith("/")&&!next.startsWith("//")?next:fallback;
       setMessage("Mot de passe enregistré. Ouverture de votre espace…");
