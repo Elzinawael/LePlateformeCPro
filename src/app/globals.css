@@ -6,3 +6,37 @@
 @media(max-width:760px){.portal-shell,.student-shell{padding:0 15px}.portal-hero{grid-template-columns:1fr;padding:28px 22px;min-height:auto}.hero-copy h1{font-size:34px}.hero-art{height:260px}.hero-orbit{width:250px;height:250px}.orbit-two{width:190px;height:190px}.hero-car{width:145px;height:145px}.card-students{top:5px;left:0}.card-progress{right:0;bottom:10px}.portal-features{grid-template-columns:1fr}.portal-footer{font-size:8px}.student-welcome{padding:22px}.student-welcome h1{font-size:25px}.student-cards{grid-template-columns:1fr}.student-layout{grid-template-columns:1fr}.portal-tag{font-size:10px}.student-note{align-items:flex-start}}
 
 .login-shell{min-height:100vh;background:#f5f7fb;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px}.login-card{width:min(100%,430px);background:#fff;border:1px solid #e7edf4;border-radius:20px;padding:34px;box-shadow:0 18px 50px #22354d0a}.login-brand{justify-content:center;padding:0 0 26px}.login-heading{text-align:center;margin-bottom:24px}.login-heading h1{font:800 27px Manrope,sans-serif;margin:0}.login-heading p{font-size:12px;color:#8793a6;margin-top:8px}.login-card form{display:grid;gap:9px}.login-card label{font-size:11px;font-weight:700;color:#526079;margin-top:5px}.login-input{height:44px;border:1px solid #e4eaf2;border-radius:10px;display:flex;align-items:center;gap:9px;padding:0 12px;color:#8a97a9}.login-input:focus-within{border-color:#8db0ff;box-shadow:0 0 0 3px #2863e60d}.login-input input{flex:1;min-width:0;border:0;outline:0;font:12px 'DM Sans';color:#1d2942;background:transparent}.login-input button{border:0;background:transparent;color:#8390a4;display:grid;place-items:center}.login-submit{height:44px;border:0;border-radius:10px;background:#2463eb;color:#fff;font-size:12px;font-weight:700;margin-top:10px}.login-submit:disabled{opacity:.65}.login-error{font-size:11px;color:#c34d48;background:#fff1ef;border:1px solid #ffe0dc;padding:10px;border-radius:8px}.login-support{text-align:center;font-size:10px;color:#8995a7;margin:22px 0 0}.login-footer{color:#a0aaba;font-size:10px;margin-top:20px}@media(max-width:500px){.login-card{padding:25px 20px}}
+
+/* Live portal data states and form controls */
+.empty-state{font-size:11px;color:#8793a6;padding:15px 0;margin:0;line-height:1.6}
+.student-section-gap{margin-top:16px}
+.student-notice{margin:16px 0 0;padding:12px 15px;border:1px solid #d9e6ff;background:#f3f7ff;color:#315da8;border-radius:10px;font-size:12px}
+.student-logout{border:1px solid #e5eaf1;background:#fff;border-radius:8px;padding:7px 10px;color:#66758b;font-size:10px;cursor:pointer}
+.student-request-form{display:grid;gap:9px;margin-top:12px}
+.student-request-form label{font-size:11px;font-weight:700;color:#59677e}
+.student-request-form textarea,.student-request-form input:not([type=file]){width:100%;box-sizing:border-box;border:1px solid #e2e8f1;border-radius:9px;padding:10px 11px;font:12px 'DM Sans',sans-serif;color:#1c2740;background:#fff}
+.student-request-form textarea{resize:vertical;min-height:90px}
+.student-request-form input[type=file]{font-size:11px;max-width:100%}
+.student-request-form small,.student-helper{font-size:10px;color:#8793a6;line-height:1.6}
+.student-session-list{display:grid;gap:10px}
+.student-session{display:flex;gap:11px;align-items:center;padding:12px 0;border-top:1px solid #eff2f6}
+.student-session-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f0f4ff;color:#356bdc;flex-shrink:0}
+.student-session-info{display:grid;gap:3px;min-width:0;flex:1}
+.student-session-info strong{font-size:11px}
+.student-session-info span,.student-session-info small{font-size:9px;color:#8390a4}
+.student-session .student-action{margin:0;white-space:nowrap}
+.permit-status{display:grid;gap:9px;margin:10px 0}
+.permit-status-main{display:flex;gap:10px;align-items:center}
+.permit-status-main .feature-icon{margin:0;flex-shrink:0}
+.permit-status-main strong,.contract-summary strong{display:block;font-size:12px}
+.permit-status-main small,.contract-summary small,.contract-summary span{display:block;font-size:10px;color:#8490a3;margin-top:4px}
+.permit-rejection{font-size:10px;color:#b6574f;background:#fff4f2;padding:9px 11px;border-radius:8px;margin:0}
+.contract-summary{display:grid;gap:4px}
+.balance-summary{border-top:1px solid #edf0f5;margin-top:14px;padding-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.balance-summary small{font-size:9px;color:#8793a6}
+.balance-summary strong{font-size:16px;font-family:Manrope,sans-serif}
+.request-response{flex-basis:100%;font-size:10px;color:#66758b;padding-left:30px}
+.user-row form{margin-left:auto}
+.user-row form .dots{border:0;background:transparent;cursor:pointer;padding:4px}
+.schedule-time small{font-size:8px;color:#a0aaba}
+@media(max-width:760px){.student-session{align-items:flex-start;flex-wrap:wrap}.student-session .student-action{margin-left:45px}.balance-summary{align-items:flex-start;flex-direction:column}.student-notice{font-size:11px}}
