@@ -27,7 +27,7 @@ jobs:
       - name: Verify patched PostCSS dependency
         run: |
           npm ls postcss --all
-          node -e "const fs=require('node:fs');const p=require('./node_modules/next/node_modules/postcss/package.json');console.log('Next nested PostCSS:',p.version);if(p.version!=='8.5.33')process.exit(1)"
+          node -e "const p=require(require.resolve('postcss/package.json',{paths:[require.resolve('next/package.json')]}));console.log('PostCSS resolved by Next.js:',p.version);if(p.version!=='8.5.33')process.exit(1)"
       - name: Audit all installed dependencies
         run: npm audit --audit-level=moderate
       - name: Lint
