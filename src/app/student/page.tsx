@@ -49,7 +49,8 @@ const notices:Record<string,string> = {
   "permit-details-invalid":"Le numéro de permis est trop long.",
   "upload-error":"Le téléversement a échoué. Réessayez.",
   "permit-record-error":"Le fichier est téléversé, mais son dossier n’a pas pu être créé. Contactez votre école.",
-  "permit-uploaded":"Votre permis a été transmis à l’école pour vérification."
+  "permit-uploaded":"Votre permis a été transmis à l’école pour vérification.",
+  "permit-pending":"Votre permis est déjà en attente de vérification. Attendez le retour de votre école."
 };
 
 export default async function StudentPortal({ searchParams }:{searchParams:Promise<{notice?:string}>}) {
