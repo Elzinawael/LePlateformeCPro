@@ -1,7 +1,7 @@
 import { ArrowLeft,BookOpen,CarFront,CheckCircle2,FileCheck2,GraduationCap,UserRound } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { updateStudentModuleProgress } from "@/app/actions/progress";
+import { advanceStudentPhase,updateStudentModuleProgress } from "@/app/actions/progress";
 
 export const dynamic="force-dynamic";
 
@@ -15,7 +15,12 @@ const notices:Record<string,string>={
  "progress-updated":"La progression théorique a été enregistrée.",
  "progress-invalid":"Vérifiez les informations de la mise à jour.",
  "progress-error":"La mise à jour de la progression a échoué.",
- "module-five-prerequisite":"Les modules 1 à 4 doivent être réussis avant de valider l’évaluation du module 5."
+ "module-five-prerequisite":"Les modules 1 à 4 doivent être réussis avant de valider l’évaluation du module 5.",
+ "phase-duration":"La durée minimale de la phase actuelle n’est pas encore atteinte.",
+ "phase-incomplete":"Tous les modules et toutes les sorties pratiques de la phase actuelle doivent être complétés.",
+ "phase-error":"Le passage à la phase suivante n’a pas pu être effectué.",
+ "phase-final":"L’élève est déjà dans la phase finale.",
+ "phase-advanced":"L’élève a été transféré à la phase suivante."
 };
 function statusLabel(value:string){
  if(value==="completed") return "Complété";
@@ -47,7 +52,7 @@ export default async function StudentRecordPage({
 
  const [{data:school},{data:student,error:studentError},{data:schoolPhases},{data:globalPhases}]=await Promise.all([
   supabase.from("schools").select("name").eq("id",membership.school_id).maybeSingle(),
-  supabase.from("students").select("id,first_name,last_name,contract_number,email,phone,date_of_birth,enrollment_date,status,current_phase_id,user_id").eq("id",studentId).eq("school_id",membership.school_id).maybeSingle(),
+  supabase.from("students").select("id,first_name,last_name,contract_number,email,phone,date_of_birth,enrollment_date,status,current_phase_id,current_phase_started_at,user_id").eq("id",studentId).eq("school_id",membership.school_id).maybeSingle(),
   supabase.from("curriculum_phases").select("id,phase_number,name,school_id").eq("school_id",membership.school_id).order("phase_number"),
   supabase.from("curriculum_phases").select("id,phase_number,name,school_id").is("school_id",null).order("phase_number")
  ]);
@@ -79,6 +84,15 @@ export default async function StudentRecordPage({
  const phaseOne=phases.find(p=>p.phase_number===1);
  const moduleFive=phaseOne?modules.find(m=>m.phase_id===phaseOne.id&&m.module_number===5):null;
  const permitReady=!!moduleFive&&completedModules.has(moduleFive.id);
+ const nextPhase=currentPhase?phases.find(p=>p.phase_number===currentPhase.phase_number+1)??null:null;
+ const currentModules=modules.filter(m=>m.phase_id===currentPhase?.id);
+ const currentLessons=lessons.filter(l=>l.phase_id===currentPhase?.id);
+ const remainingModules=currentModules.filter(m=>!completedModules.has(m.id)).length;
+ const remainingLessons=currentLessons.filter(l=>!completedLessons.has(l.id)).length;
+ const minimumDays=currentPhase?([28,28,56,56][currentPhase.phase_number-1]??0):0;
+ const phaseStarted=student.current_phase_started_at?new Date(student.current_phase_started_at).getTime():Date.now();
+ const daysRemaining=Math.max(0,Math.ceil((phaseStarted+minimumDays*86400000-Date.now())/86400000));
+ const phaseCanAdvance=!!currentPhase&&!!nextPhase&&remainingModules===0&&remainingLessons===0&&daysRemaining===0;
  const notice=noticeKey?notices[noticeKey]:null;
 
  return <main className="student-record-shell">
@@ -106,6 +120,15 @@ export default async function StudentRecordPage({
      <div><small>Date de naissance</small><strong>{formatDate(student.date_of_birth)}</strong></div>
      <div><small>Compte élève</small><strong>{student.user_id?"Compte associé":"Invitation à envoyer"}</strong></div>
     </div>
+   </section>
+
+   <section className="students-list-panel phase-transition-panel">
+    <div className="panel-head"><div><h2>Passage à la phase suivante</h2><p>Le passage respecte les durées minimales et les validations du programme SAAQ.</p></div><GraduationCap size={18}/></div>
+    {currentPhase&&nextPhase?<div className="phase-transition-content">
+      <div><strong>Phase {currentPhase.phase_number} → Phase {nextPhase.phase_number}</strong><small>Début de la phase : {formatDate(student.current_phase_started_at)} · Durée minimale : {minimumDays} jours</small></div>
+      <div className="phase-transition-checks"><span>{remainingModules} module(s) restant(s)</span><span>{remainingLessons} sortie(s) pratique(s) restante(s)</span><span>{daysRemaining} jour(s) avant la fin du délai minimal</span></div>
+      {phaseCanAdvance?<form action={advanceStudentPhase}><input type="hidden" name="student_id" value={student.id}/><button type="submit">Valider le passage à la phase {nextPhase.phase_number}</button></form>:<p className="student-helper">Le passage sera disponible lorsque toutes les validations seront terminées et que la durée minimale sera écoulée.</p>}
+    </div>:<p className="empty-state">{currentPhase?"L’élève a atteint la phase finale du programme.":"La phase actuelle doit être définie par l’école."}</p>}
    </section>
 
    <section className="students-list-panel">
