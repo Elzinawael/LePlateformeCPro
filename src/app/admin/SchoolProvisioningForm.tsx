@@ -51,17 +51,17 @@ export default function SchoolProvisioningForm() {
   return <section className="students-create-panel">
     <div className="panel-head"><div><h2>Créer une école</h2><p>Un compte propriétaire unique sera créé pour cet établissement.</p></div><School size={20}/></div>
     <form onSubmit={submit} className="students-create-form">
-      <label>Nom de l'école<input required maxLength={160} value={name} onChange={e=>setName(e.target.value)} placeholder="Auto-école Exemple"/></label>
+      <label>Nom de l&apos;école<input required maxLength={160} value={name} onChange={e=>setName(e.target.value)} placeholder="Auto-école Exemple"/></label>
       <label>Prénom du propriétaire<input required maxLength={100} value={ownerFirstName} onChange={e=>setOwnerFirstName(e.target.value)} placeholder="Prénom"/></label>
       <label>Nom du propriétaire<input required maxLength={100} value={ownerLastName} onChange={e=>setOwnerLastName(e.target.value)} placeholder="Nom"/></label>
       <label>Courriel de connexion<input required type="email" maxLength={254} value={email} onChange={e=>setEmail(e.target.value)} placeholder="direction@ecole.ca"/></label>
       <label>Téléphone (facultatif)<input type="tel" maxLength={40} value={phone} onChange={e=>setPhone(e.target.value)} placeholder="514 555-0100"/></label>
       {error&&<div className="login-error" role="alert">{error}</div>}
-      <div className="students-create-submit"><button className="primary-button" type="submit" disabled={busy}><Plus size={15}/>{busy?"Création…":"Créer l'école et son accès"}</button><small>Le mot de passe temporaire est généré automatiquement et affiché une seule fois.</small></div>
+      <div className="students-create-submit"><button className="primary-button" type="submit" disabled={busy}><Plus size={15}/>{busy?"Création…":"Créer l&apos;école et son accès"}</button><small>Le mot de passe temporaire est généré automatiquement et affiché une seule fois.</small></div>
     </form>
     {created&&<div className="created-credentials" role="status">
       <div><Check size={17}/><strong>École créée : {created.school.name}</strong></div>
-      <p>Transmets ces identifiants au propriétaire de l'école. Il devra choisir un nouveau mot de passe à sa première connexion.</p>
+      <p>Transmets ces identifiants au propriétaire de l&apos;école. Il devra choisir un nouveau mot de passe à sa première connexion.</p>
       <dl><dt>Code école</dt><dd>{created.school.code}</dd><dt>Adresse de connexion</dt><dd>{created.credentials.email}</dd><dt>Mot de passe temporaire</dt><dd><code>{created.credentials.password}</code></dd></dl>
       <button type="button" className="primary-button" onClick={copyCredentials}><Copy size={15}/>{copied?"Copié":"Copier les identifiants"}</button>
     </div>}
