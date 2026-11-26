@@ -177,7 +177,7 @@ export async function POST(request:NextRequest) {
             school_id:schoolId,user_id:user.id,
             contract_number:"DEMO-2026-001",
             first_name:role.firstName,last_name:role.lastName,email:generatedEmail,
-            city:"Montréal",province:"Québec",status:"active",
+            city:"Montréal",status:"active",
             current_phase_id:phaseOne.id,
             current_phase_started_at:new Date(Date.now()-35*86400000).toISOString(),
             enrollment_date:new Date(Date.now()-35*86400000).toISOString().slice(0,10),
