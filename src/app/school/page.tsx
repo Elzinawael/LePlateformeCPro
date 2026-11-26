@@ -175,7 +175,7 @@ export default async function SchoolPortal() {
           <div className="crumb">Établissement <span>/</span> <b>Vue d&apos;ensemble</b></div>
           <div className="top-actions">
             <span className="today-pill"><CalendarDays size={15} />{today}</span>
-            <span className="icon-button" aria-label="Notifications"><Bell size={16} /></span>
+            <Link className="icon-button" href="/school/requests" aria-label="Ouvrir les demandes en attente"><Bell size={16} />{(pendingRequests.count ?? 0) > 0 && <span className="notification-count">{pendingRequests.count}</span>}</Link>
             <div className="user-avatar small">{(profile?.first_name?.[0] || "C") + (profile?.last_name?.[0] || "P")}</div>
           </div>
         </header>
