@@ -7,17 +7,16 @@ import PracticalScheduleForm from "./PracticalScheduleForm";
 export const dynamic="force-dynamic";
 
 type ProgressRow={
- id:string;student_id:string;lesson_id:string;status:string;scheduled_at:string|null;instructor_name:string|null;notes:string|null;
+ id:string;student_id:string;lesson_id:string;status:string;scheduled_at:string|null;notes:string|null;
  student:{first_name:string;last_name:string;contract_number:string;current_phase_id:string|null}|null;
  lesson:{name:string;lesson_number:number;phase_id:string}|null;
 };
 const notices:Record<string,string>={
  scheduled:"La leçon pratique a été planifiée.",
- invalid:"Vérifiez la date, le formateur et les informations saisies.",
+ invalid:"Vérifiez la date et les informations saisies.",
  "datetime-invalid":"Choisissez une date et une heure futures.",
  "phase-invalid":"Cette sortie ne fait pas partie de la phase actuelle de l&apos;élève.",
- conflict:"Le formateur ou l&apos;élève possède déjà une leçon dans ce créneau de 55 minutes.",
- "trainer-required":"Indiquez le nom du formateur responsable.",
+ conflict:"Cet élève possède déjà une leçon dans ce créneau de 55 minutes.",
  "schedule-error":"La planification n'a pas pu être enregistrée."
 };
 function formatDate(value:string|null) {
@@ -39,7 +38,7 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
  const [{data:school},{data:rows,error:progressError}]=await Promise.all([
   supabase.from("schools").select("name").eq("id",membership.school_id).maybeSingle(),
   supabase.from("student_practical_progress")
-   .select("id,student_id,lesson_id,status,scheduled_at,instructor_name,notes,student:students!student_practical_progress_student_school_fk(first_name,last_name,contract_number,current_phase_id),lesson:practical_lessons(name,lesson_number,phase_id)")
+   .select("id,student_id,lesson_id,status,scheduled_at,notes,student:students!student_practical_progress_student_school_fk(first_name,last_name,contract_number,current_phase_id),lesson:practical_lessons(name,lesson_number,phase_id)")
    .eq("school_id",membership.school_id).order("scheduled_at",{ascending:true,nullsFirst:false}).limit(500)
  ]);
  const progress=(rows??[]) as unknown as ProgressRow[];
@@ -54,7 +53,7 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
    <div className="students-head-right"><span>{school?.name??"Votre école"}</span><a href="/school"><ArrowLeft size={15}/> Tableau de bord</a></div>
   </header>
   <section className="practical-content">
-   <div className="students-page-heading"><div><p className="hero-kicker">FORMATION PRATIQUE</p><h1>Leçons pratiques</h1><p>Planifiez les sorties de la phase actuelle et consignez le nom du formateur de l&apos;école.</p></div><div className="students-total"><CarFront size={18}/><strong>{scheduled}</strong><small>planifiées</small></div></div>
+   <div className="students-page-heading"><div><p className="hero-kicker">FORMATION PRATIQUE</p><h1>Leçons pratiques</h1><p>Planifiez les sorties de la phase actuelle de chaque élève.</p></div><div className="students-total"><CarFront size={18}/><strong>{scheduled}</strong><small>planifiées</small></div></div>
    {notice&&<div className="student-notice" role="status">{notice}</div>}
    {progressError&&<div className="student-notice" role="alert">Impossible de charger les sorties pratiques.</div>}
    <div className="instructor-metrics">
@@ -74,8 +73,8 @@ export default async function PracticalSessionsPage({searchParams}:{searchParams
         <div><strong>{student.first_name} {student.last_name}</strong><small>Contrat {student.contract_number} · Sortie {lesson.lesson_number} — {lesson.name}</small></div>
         <span className={"request-status status-"+row.status}>{row.status==="scheduled"?"Planifiée":row.status==="in_progress"?"En cours":"À planifier"}</span>
        </div>
-       {row.status==="scheduled"&&<p className="student-helper">Créneau actuel : {formatDate(row.scheduled_at)} · Formateur : {row.instructor_name??"Non précisé"}</p>}
-       <PracticalScheduleForm progressId={row.id} scheduledAt={row.scheduled_at} trainerName={row.instructor_name} notes={row.notes} status={row.status}/>
+       {row.status==="scheduled"&&<p className="student-helper">Créneau actuel : {formatDate(row.scheduled_at)}</p>}
+       <PracticalScheduleForm progressId={row.id} scheduledAt={row.scheduled_at} notes={row.notes} status={row.status}/>
        {row.status==="scheduled"&&row.scheduled_at&&new Date(row.scheduled_at).getTime()<=Date.now()&&<form action={completePracticalLesson} className="practical-complete-form"><input type="hidden" name="progress_id" value={row.id}/><button className="practical-complete-button" type="submit">Valider la sortie terminée</button></form>}
       </article>;
      })}</div>}

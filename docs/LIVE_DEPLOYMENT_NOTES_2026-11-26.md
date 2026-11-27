@@ -54,3 +54,12 @@
 - SMTP et récupération de compte propriétaire.
 - Test cross-tenant avec une deuxième école.
 - Protection contre mots de passe compromis dans Supabase Auth selon disponibilité du plan.
+
+
+## V1 operating model simplification
+- Confirmed product roles: ConduiPRO platform admin, one active school owner per tenant, and student.
+- School employee/instructor login accounts are not part of V1.
+- Practical outings are scheduled and validated by the school owner. Trainer name/account is not required.
+- Live migration `20261126225500_school_managed_practical_scheduling` applied: drops legacy instructor assignment table and trainer account/name columns, replaces practical scheduling guard with owner/school-driven date validation and same-student 55-minute overlap protection, and drops the retired one-time bootstrap guard.
+- Legacy bootstrap route now returns HTTP 410; setup page redirects to login. New schools must be provisioned by an authenticated platform admin via `/admin`.
+- Demo fixtures remain: one school, one active owner, one student, two submitted sample course requests and one scheduled practical outing.
