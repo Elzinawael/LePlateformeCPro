@@ -11,7 +11,7 @@ type Phase={id:string;phase_number:number;name:string;school_id:string|null};
 type Module={id:string;phase_id:string;module_number:number;name:string;duration_minutes:number;sort_order:number;is_active:boolean};
 type Lesson={id:string;phase_id:string;lesson_number:number;name:string;duration_minutes:number;sort_order:number;is_active:boolean};
 type ModuleProgress={id:string;module_id:string;status:string;completed_at:string|null;notes:string|null};
-type PracticalProgress={id:string;lesson_id:string;status:string;scheduled_at:string|null;completed_at:string|null;notes:string|null;instructor_name:string|null};
+type PracticalProgress={id:string;lesson_id:string;status:string;scheduled_at:string|null;completed_at:string|null;notes:string|null};
 type ContractRow={id:string;contract_number:string;contract_date:string|null;contract_amount:number;currency:string;status:string;contract_file_path:string|null};
 type InvoiceRow={id:string;invoice_number:string;issue_date:string;due_date:string|null;total_amount:number;status:string};
 type PaymentRow={id:string;invoice_id:string|null;amount:number;payment_method:string;payment_date:string;reference:string|null;notes:string|null};
@@ -70,7 +70,6 @@ export default async function StudentRecordPage({
  const {data:membership,error:membershipError}=await supabase.from("school_members")
   .select("school_id,role").eq("user_id",user.id).eq("status","active").eq("role","owner").maybeSingle();
  if(membershipError||!membership) redirect("/login?error=school-access");
- if(!["owner","admin","employee"].includes(membership.role)) redirect("/school/instructor");
 
  const [{data:school},{data:student,error:studentError},{data:schoolPhases},{data:globalPhases},{data:contract},{data:invoiceRows},{data:paymentRows}]=await Promise.all([
   supabase.from("schools").select("name").eq("id",membership.school_id).maybeSingle(),
@@ -94,7 +93,7 @@ export default async function StudentRecordPage({
   supabase.from("curriculum_modules").select("id,phase_id,module_number,name,duration_minutes,sort_order,is_active").in("phase_id",phaseIds).eq("is_active",true).order("sort_order"),
   supabase.from("practical_lessons").select("id,phase_id,lesson_number,name,duration_minutes,sort_order,is_active").in("phase_id",phaseIds).eq("is_active",true).order("sort_order"),
   supabase.from("student_module_progress").select("id,module_id,status,completed_at,notes").eq("student_id",studentId).eq("school_id",membership.school_id),
-  supabase.from("student_practical_progress").select("id,lesson_id,status,scheduled_at,completed_at,notes,instructor_name").eq("student_id",studentId).eq("school_id",membership.school_id)
+  supabase.from("student_practical_progress").select("id,lesson_id,status,scheduled_at,completed_at,notes").eq("student_id",studentId).eq("school_id",membership.school_id)
  ]):[{data:[]},{data:[]},{data:[]},{data:[]}];
 
  const modules=(moduleData??[]) as Module[];
@@ -244,7 +243,7 @@ export default async function StudentRecordPage({
        return <div className="record-practical-row" key={lesson.id}>
         <span className={progress?.status==="completed"?"check-done":"check-pending"}>{progress?.status==="completed"?<CheckCircle2 size={16}/>:lesson.lesson_number}</span>
         <span><strong>Sortie {lesson.lesson_number} · {lesson.name}</strong><small>{lesson.duration_minutes} min · {statusLabel(progress?.status??"not_started")}</small></span>
-        <small>{progress?.scheduled_at?formatDate(progress.scheduled_at):"Non planifiée"}{progress?.instructor_name?" · "+progress.instructor_name:""}</small>
+        <small>{progress?.scheduled_at?formatDate(progress.scheduled_at):"Non planifiée"}</small>
        </div>;
       })}
      </div>;
