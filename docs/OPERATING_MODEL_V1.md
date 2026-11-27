@@ -59,3 +59,7 @@ Il n'existe pas de compte Employé ni de compte Instructeur dans cette version. 
 ## Retrait du bootstrap temporaire
 
 Le bootstrap one-shot qui créait une école de démonstration est retiré. Les nouvelles écoles doivent être créées par l'administrateur authentifié depuis `/admin`. La route historique renvoie HTTP 410 et l'ancienne page d'installation redirige vers la connexion.
+
+## Database acceptance script
+
+Run `supabase/tests/operating_model_invariants.sql` against the project before release. It checks the three-role model, removal of instructor-account dependencies, the 4/12/15 PESR curriculum structure, RLS on sensitive tables, and private document storage.
